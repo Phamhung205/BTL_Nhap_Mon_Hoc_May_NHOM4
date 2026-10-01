@@ -1,0 +1,5 @@
+model_id,member,model,flow,accuracy,precision,recall,f1_score,confusion_matrix
+decision_tree_A,Đức,Decision Tree,A,,,,,
+decision_tree_B,Đức,Decision Tree,B,,,,,
+knn_A,Hải,K-NN,A,,,,,
+knn_B,Hải,K-NN,B,,,,,

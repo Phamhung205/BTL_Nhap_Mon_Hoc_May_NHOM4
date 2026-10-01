@@ -1,0 +1,98 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T5]{fontenc}
+\usepackage[vietnamese]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage[hidelinks]{hyperref}
+
+\geometry{left=3cm,right=2cm,top=2cm,bottom=2cm}
+
+\title{BÁO CÁO BÀI TẬP LỚN\\
+ĐỀ TÀI 9: DỰ ĐOÁN KHÁCH HÀNG RỜI BỎ DỊCH VỤ VIỄN THÔNG}
+\author{Nhóm: Hùng (Đội trưởng), Mạnh, Đức, Hải}
+\date{Năm học 2026--2027}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Đặt vấn đề}
+Khách hàng rời bỏ dịch vụ (customer churn) là bài toán phân loại nhằm dự đoán khả năng một khách hàng ngừng sử dụng dịch vụ viễn thông. Mục tiêu của đề tài là xây dựng và so sánh các mô hình học máy trên cùng tập kiểm tra để đánh giá khả năng nhận diện nhóm khách hàng có nguy cơ rời bỏ.
+
+\section{Mô tả và khám phá dữ liệu}
+% Hùng ghép phần EDA do Mạnh cung cấp vào đây.
+\textit{Phần này sẽ được cập nhật từ kết quả EDA của Mạnh.}
+
+\section{Tiền xử lý dữ liệu}
+\subsection{Chia dữ liệu Train/Test}
+Nhóm thống nhất chia dữ liệu bằng \texttt{train\_test\_split} với các tham số:
+\begin{itemize}
+    \item \texttt{test\_size = 0.20}
+    \item \texttt{random\_state = 42}
+    \item \texttt{stratify = y}
+\end{itemize}
+Việc cố định cách chia dữ liệu giúp các mô hình được đánh giá trên cùng một tập Test.
+
+\subsection{Luồng A}
+% Ghép mô tả tiền xử lý của Mạnh: missing value, One-Hot Encoding, StandardScaler.
+\textit{Cập nhật nội dung Luồng A từ Mạnh.}
+
+\subsection{Luồng B}
+% Ghép Feature Engineering của Đức.
+\textit{Cập nhật nội dung Luồng B từ Đức.}
+
+\section{Thiết kế giải pháp}
+\subsection{Decision Tree}
+% Ghép mô tả thuật toán và GridSearchCV của Đức.
+\textit{Cập nhật từ Đức.}
+
+\subsection{K-Nearest Neighbors}
+% Ghép mô tả thuật toán, k và metric khoảng cách của Hải.
+\textit{Cập nhật từ Hải.}
+
+\subsection{Chỉ số đánh giá}
+Các mô hình được đánh giá bằng Accuracy, Precision, Recall, F1-score và Confusion Matrix. Đối với bài toán Churn, Recall và F1-score của lớp \texttt{Churn = Yes} được chú ý bên cạnh Accuracy vì lớp khách hàng rời bỏ có thể không chiếm đa số.
+
+\section{Kết quả thực nghiệm}
+Hùng tổng hợp bốn kết quả: Decision Tree trên Luồng A/B và K-NN trên Luồng A/B.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{llcccc}
+\toprule
+Mô hình & Luồng & Accuracy & Precision & Recall & F1-score \\
+\midrule
+Decision Tree & A & -- & -- & -- & -- \\
+Decision Tree & B & -- & -- & -- & -- \\
+K-NN          & A & -- & -- & -- & -- \\
+K-NN          & B & -- & -- & -- & -- \\
+\bottomrule
+\end{tabular}
+\caption{Bảng so sánh chéo bốn kết quả mô hình.}
+\label{tab:model-comparison}
+\end{table}
+
+\subsection{Ma trận nhầm lẫn}
+% Chèn 4 confusion matrix từ Đức và Hải vào đây.
+\textit{Chèn ma trận nhầm lẫn của bốn kết quả sau khi nhận đủ từ Đức và Hải.}
+
+\section{Phân tích lỗi}
+% Ghép phần Error Analysis của Hải.
+\textit{Cập nhật từ Hải sau khi nhóm chốt mô hình được sử dụng cho phân tích lỗi.}
+
+\section{Thảo luận}
+Sau khi có số liệu thực nghiệm, phần này cần phân tích sự khác biệt giữa Luồng A và Luồng B, giữa Decision Tree và K-NN, đồng thời giải thích các trường hợp Accuracy cao nhưng Recall hoặc F1-score của lớp Churn chưa tốt. Không kết luận chỉ dựa trên một chỉ số duy nhất.
+
+\section{Tổng kết}
+Đề tài xây dựng một quy trình thống nhất từ chia dữ liệu, tiền xử lý, huấn luyện đến đánh giá mô hình. Bốn kết quả được kiểm tra trên cùng tập Test để đảm bảo việc so sánh công bằng. Phần tổng kết cuối cùng sẽ được cập nhật sau khi nhóm hoàn thành thực nghiệm và phân tích lỗi.
+
+\end{document}

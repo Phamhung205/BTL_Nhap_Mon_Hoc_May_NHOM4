@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
+
+# He dieu hanh
+.DS_Store
+Thumbs.db
+
+# Moi truong ao
+venv/
+.venv/
+env/
+
+# File tam
+*.tmp
+*.log
+
+# LaTeX
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz

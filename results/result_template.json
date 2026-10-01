@@ -1,0 +1,11 @@
+{
+  "model_id": "decision_tree_A",
+  "member": "Đức",
+  "model": "Decision Tree",
+  "flow": "A",
+  "accuracy": null,
+  "precision": null,
+  "recall": null,
+  "f1_score": null,
+  "confusion_matrix": [[0, 0], [0, 0]]
+}
