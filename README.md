@@ -111,3 +111,18 @@ report/main.tex
 ```
 
 Hùng ghép nội dung EDA của Mạnh, thuật toán/kết quả của Đức và Hải, Error Analysis của Hải, rồi hoàn thiện phần thiết kế giải pháp, bảng so sánh, thảo luận và tổng kết.
+
+## 8. Chạy lại phần của Đức
+
+Từ thư mục gốc dự án, tạo Luồng B rồi huấn luyện Decision Tree trên cả hai luồng:
+
+```bash
+python -m src.feature_engineering_b
+python -m src.train_decision_tree
+```
+
+Các lệnh trên dùng nguyên tập Train/Test đã chia sẵn, tạo `X_train_B.csv`,
+`X_test_B.csv`, lưu bộ biến đổi/mô hình trong `models/` và ghi hai kết quả thật
+vào `results/duc_decision_tree_A.json`, `results/duc_decision_tree_B.json`.
+Notebook có giải thích và kết quả đã chạy nằm tại
+`notebooks/03_duc_feature_engineering_B_decision_tree.ipynb`.
