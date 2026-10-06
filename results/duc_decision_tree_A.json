@@ -18,7 +18,11 @@
     ]
   ],
   "positive_label": "Yes",
-  "cv_scoring": "f1 (Churn=Yes)",
+  "confusion_matrix_labels": [
+    "No",
+    "Yes"
+  ],
+  "cv_scoring": "f1 (Churn=Yes), fold-local preprocessing",
   "cv_best_f1": 0.6209339280993824,
   "best_params": {
     "class_weight": "balanced",
@@ -26,5 +30,12 @@
     "max_depth": 8,
     "min_samples_leaf": 40
   },
-  "feature_count": 45
+  "feature_count": 45,
+  "versions": {
+    "python": "3.12.10",
+    "scikit_learn": "1.9.0",
+    "numpy": "2.5.0",
+    "scipy": "1.18.0",
+    "joblib": "1.5.3"
+  }
 }

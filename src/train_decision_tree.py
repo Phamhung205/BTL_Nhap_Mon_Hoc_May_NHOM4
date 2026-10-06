@@ -1,192 +1,188 @@
-"""Tinh chinh va danh gia Decision Tree tren Luong A va Luong B."""
-
+"""Fold-local preprocessing + Decision Tree search on existing Train only."""
 from __future__ import annotations
 
+import argparse
 import csv
+import hashlib
 import json
+import platform
+import tempfile
 from pathlib import Path
-from typing import Any
 
 import joblib
 import numpy as np
+import scipy
+import sklearn
+from sklearn.base import clone
 from sklearn.metrics import f1_score, make_scorer
 from sklearn.model_selection import GridSearchCV, StratifiedKFold
+from sklearn.pipeline import Pipeline
 from sklearn.tree import DecisionTreeClassifier
 
 from .config import POSITIVE_LABEL, RANDOM_STATE, TARGET_COLUMN
+from .duc_preprocessing import TelcoPreprocessor
 from .evaluate import danh_gia_mo_hinh
-
+from .feature_engineering_b import read_raw_csv, main as export_b
 
 ROOT = Path(__file__).resolve().parents[1]
 PROCESSED_DIR = ROOT / "data" / "processed"
 MODELS_DIR = ROOT / "models"
 RESULTS_DIR = ROOT / "results"
-
-
+REPORT_DIR = ROOT / "report"
 PARAM_GRID = {
-    "criterion": ["gini", "entropy"],
-    "max_depth": [3, 4, 5, 6, 8, None],
-    "min_samples_leaf": [1, 5, 10, 20, 40],
-    "class_weight": [None, "balanced"],
+    "tree__criterion": ["gini", "entropy"],
+    "tree__max_depth": [3, 4, 5, 6, 8, None],
+    "tree__min_samples_leaf": [1, 5, 10, 20, 40],
+    "tree__class_weight": [None, "balanced"],
 }
 
 
-def load_numeric_matrix(path: Path) -> tuple[np.ndarray, list[str]]:
-    """Doc ma tran CSV thuần số va kiem tra moi dong co du cot."""
-    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+def load_numeric_matrix(path):
+    with Path(path).open(encoding="utf-8-sig", newline="") as handle:
         reader = csv.reader(handle)
-        try:
-            header = next(reader)
-        except StopIteration as exc:
-            raise ValueError(f"{path} rong.") from exc
-
-        rows: list[list[float]] = []
-        for row_number, row in enumerate(reader, start=2):
-            if len(row) != len(header):
-                raise ValueError(
-                    f"{path.name} dong {row_number}: {len(row)} cot, "
-                    f"can {len(header)}."
-                )
-            rows.append([float(value) for value in row])
-
+        header = next(reader, [])
+        if not header or len(set(header)) != len(header):
+            raise ValueError(f"Missing/duplicate header: {path}")
+        rows = list(reader)
+    if not rows or any(len(row) != len(header) for row in rows):
+        raise ValueError(f"Empty or ragged matrix: {path}")
     matrix = np.asarray(rows, dtype=float)
-    if matrix.ndim != 2 or matrix.shape[1] != len(header):
-        raise ValueError(f"Ma tran {path.name} khong hop le.")
     if not np.isfinite(matrix).all():
-        raise ValueError(f"{path.name} con gia tri thieu/vo han.")
+        raise ValueError(f"Missing/infinite matrix value: {path}")
     return matrix, header
 
 
-def load_target(path: Path) -> np.ndarray:
-    with path.open("r", encoding="utf-8-sig", newline="") as handle:
-        reader = csv.DictReader(handle)
-        if reader.fieldnames is None or TARGET_COLUMN not in reader.fieldnames:
-            raise ValueError(f"{path.name} thieu cot {TARGET_COLUMN}.")
-        values = [row[TARGET_COLUMN] for row in reader]
-
-    labels = np.asarray(values, dtype=object)
-    if set(labels) != {"No", "Yes"}:
-        raise ValueError(f"Nhan trong {path.name} khong dung No/Yes.")
-    return labels
+def load_target(path):
+    rows, fields = read_raw_csv(path)
+    if fields != [TARGET_COLUMN]:
+        raise ValueError(f"Expected a single {TARGET_COLUMN} column: {path}")
+    values = np.asarray([row[TARGET_COLUMN] for row in rows], dtype=object)
+    if set(values) != {"No", "Yes"}:
+        raise ValueError(f"Expected No/Yes labels: {path}")
+    return values
 
 
-def tune_decision_tree(
-    X_train: np.ndarray,
-    y_train: np.ndarray,
-) -> GridSearchCV:
-    """Grid search chi tren Train, toi uu F1 cua lop Churn=Yes."""
-    cv = StratifiedKFold(
-        n_splits=5,
-        shuffle=True,
-        random_state=RANDOM_STATE,
-    )
-    scorer = make_scorer(f1_score, pos_label=POSITIVE_LABEL)
+def make_cv():
+    return StratifiedKFold(n_splits=5, shuffle=True, random_state=RANDOM_STATE)
 
-    search = GridSearchCV(
-        estimator=DecisionTreeClassifier(random_state=RANDOM_STATE),
-        param_grid=PARAM_GRID,
-        scoring=scorer,
-        cv=cv,
-        n_jobs=-1,
-        refit=True,
-        return_train_score=False,
-    )
-    search.fit(X_train, y_train)
+
+def tune_decision_tree(X_train_raw, y_train, flow="B", n_jobs=2, param_grid=None):
+    """No Test argument: each cloned pipeline fits only its training fold."""
+    if len(X_train_raw) != len(y_train):
+        raise ValueError("Train X/y length mismatch.")
+    with tempfile.TemporaryDirectory(prefix="duc-cv-") as cache:
+        pipeline = Pipeline([
+            ("preprocess", TelcoPreprocessor(flow)),
+            ("tree", DecisionTreeClassifier(random_state=RANDOM_STATE)),
+        ], memory=joblib.Memory(cache, verbose=0))
+        search = GridSearchCV(
+            pipeline, PARAM_GRID if param_grid is None else param_grid,
+            scoring=make_scorer(f1_score, pos_label=POSITIVE_LABEL, zero_division=0),
+            cv=make_cv(), n_jobs=n_jobs, pre_dispatch=n_jobs if n_jobs > 0 else "2*n_jobs",
+            refit=True, error_score="raise", return_train_score=False,
+        )
+        search.fit(X_train_raw, y_train)
+        search.best_estimator_.memory = None
+        search.estimator.memory = None
     return search
 
 
-def make_result(
-    flow: str,
-    metrics: dict[str, Any],
-    search: GridSearchCV,
-    feature_count: int,
-) -> dict[str, Any]:
-    return {
-        "model_id": f"decision_tree_{flow}",
-        "member": "Đức",
-        "model": "Decision Tree",
-        "flow": flow,
-        "accuracy": metrics["accuracy"],
-        "precision": metrics["precision"],
-        "recall": metrics["recall"],
-        "f1_score": metrics["f1_score"],
-        "confusion_matrix": metrics["confusion_matrix"],
-        "positive_label": POSITIVE_LABEL,
-        "cv_scoring": "f1 (Churn=Yes)",
-        "cv_best_f1": float(search.best_score_),
-        "best_params": search.best_params_,
-        "feature_count": feature_count,
-    }
-
-
-def save_json(path: Path, data: dict[str, Any]) -> None:
+def save_json(path, data):
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as handle:
-        json.dump(data, handle, ensure_ascii=False, indent=2)
+        json.dump(data, handle, ensure_ascii=False, indent=2, allow_nan=False)
         handle.write("\n")
 
 
-def train_and_evaluate_flow(
-    flow: str,
-    X_train: np.ndarray,
-    X_test: np.ndarray,
-    y_train: np.ndarray,
-    y_test: np.ndarray,
-) -> dict[str, Any]:
-    if len(X_train) != len(y_train) or len(X_test) != len(y_test):
-        raise AssertionError(f"Luong {flow}: so dong X/y khong khop.")
-    if X_train.shape[1] != X_test.shape[1]:
-        raise AssertionError(f"Luong {flow}: so cot Train/Test khong khop.")
-
-    search = tune_decision_tree(X_train, y_train)
-    predictions = search.predict(X_test)
-    metrics = danh_gia_mo_hinh(
-        y_test,
-        predictions,
-        pos_label=POSITIVE_LABEL,
-        in_chi_tiet=False,
-    )
-    result = make_result(flow, metrics, search, X_train.shape[1])
-
-    MODELS_DIR.mkdir(parents=True, exist_ok=True)
-    model_path = MODELS_DIR / f"decision_tree_{flow}.pkl"
-    result_path = RESULTS_DIR / f"duc_decision_tree_{flow}.json"
-    joblib.dump(search.best_estimator_, model_path)
-    save_json(result_path, result)
-
-    print(f"\n===== DECISION TREE - LUONG {flow} =====")
-    print(f"Best CV F1 : {search.best_score_:.6f}")
-    print(f"Best params: {search.best_params_}")
-    print(f"Accuracy   : {metrics['accuracy']:.6f}")
-    print(f"Precision  : {metrics['precision']:.6f}")
-    print(f"Recall     : {metrics['recall']:.6f}")
-    print(f"F1-score   : {metrics['f1_score']:.6f}")
-    print(f"CM [No,Yes]: {metrics['confusion_matrix']}")
-    print(f"Da luu     : {result_path}")
-    return result
+def save_cv(path, search):
+    keys = ["rank_test_score", "mean_test_score", "std_test_score"]
+    keys += [f"split{i}_test_score" for i in range(5)]
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=["params"] + keys)
+        writer.writeheader()
+        for i, params in enumerate(search.cv_results_["params"]):
+            writer.writerow({"params": json.dumps(params, sort_keys=True),
+                             **{key: search.cv_results_[key][i] for key in keys}})
 
 
-def main() -> None:
+def best_params(search):
+    return {key.removeprefix("tree__"): value for key, value in search.best_params_.items()}
+
+
+def main(n_jobs=2):
+    train, train_columns = read_raw_csv(PROCESSED_DIR / "X_train_raw.csv")
     y_train = load_target(PROCESSED_DIR / "y_train.csv")
-    y_test = load_target(PROCESSED_DIR / "y_test.csv")
+    if len(train) != len(y_train):
+        raise ValueError("Train X/y length mismatch.")
+    # Both final flows are fixed. B_core documents the interactions' contribution;
+    # its score does NOT change the final feature set after Test was inspected.
+    searches = {}
+    for flow in ("A", "B_core", "B"):
+        print(f"GridSearchCV {flow}: Train only, 120 candidates x 5 folds", flush=True)
+        searches[flow] = tune_decision_tree(train, y_train, flow, n_jobs)
+        save_cv(REPORT_DIR / f"duc_cv_{flow}.csv", searches[flow])
+        print(f"{flow} CV F1: {searches[flow].best_score_:.6f}", flush=True)
+    comparison = [{"flow": flow, "features": len(s.best_estimator_["preprocess"].feature_names_),
+                   "cv_f1": float(s.best_score_), "best_params": best_params(s)}
+                  for flow, s in searches.items()]
+    save_json(REPORT_DIR / "duc_feature_comparison.json", {"train_only": True, "rows": comparison})
 
+    # No Test data are read until every search has finished.
+    test, test_columns = read_raw_csv(PROCESSED_DIR / "X_test_raw.csv")
+    y_test = load_target(PROCESSED_DIR / "y_test.csv")
+    if train_columns != test_columns or len(test) != len(y_test):
+        raise ValueError("Test schema/label length mismatch.")
+    export_b()
+    MODELS_DIR.mkdir(parents=True, exist_ok=True)
+    versions = {"python": platform.python_version(), "scikit_learn": sklearn.__version__,
+                "numpy": np.__version__, "scipy": scipy.__version__, "joblib": joblib.__version__}
     for flow in ("A", "B"):
-        X_train, train_columns = load_numeric_matrix(
-            PROCESSED_DIR / f"X_train_{flow}.csv"
-        )
-        X_test, test_columns = load_numeric_matrix(
-            PROCESSED_DIR / f"X_test_{flow}.csv"
-        )
-        if train_columns != test_columns:
-            raise AssertionError(f"Luong {flow}: ten/thu tu cot Train/Test khong khop.")
-        train_and_evaluate_flow(
-            flow,
-            X_train,
-            X_test,
-            y_train,
-            y_test,
-        )
+        search = searches[flow]
+        pipeline = search.best_estimator_
+        transformer = pipeline["preprocess"]
+        matrices = {}
+        for split, rows in (("train", train), ("test", test)):
+            matrix, columns = load_numeric_matrix(PROCESSED_DIR / f"X_{split}_{flow}.csv")
+            if columns != transformer.feature_names_:
+                raise ValueError(f"Unexpected feature names: {flow}/{split}")
+            expected = transformer.transform(rows)
+            if expected.shape != matrix.shape:
+                raise ValueError(f"Matrix shape mismatch: {flow}/{split}")
+            # Detect shuffled matrices as well as incompatible preprocessing.
+            np.testing.assert_allclose(matrix, expected, rtol=1e-10, atol=1e-10)
+            matrices[split] = matrix
+        # Final refit uses the group's exact CSV values after recipe verification.
+        tree = clone(pipeline["tree"]).fit(matrices["train"], y_train)
+        predictions = tree.predict(matrices["test"])
+        pipeline.steps[-1] = ("tree", tree)
+        np.testing.assert_array_equal(pipeline.predict(test), predictions)
+        metrics = danh_gia_mo_hinh(y_test, predictions, pos_label=POSITIVE_LABEL, in_chi_tiet=False)
+        result = {"model_id": f"decision_tree_{flow}", "member": "Đức",
+                  "model": "Decision Tree", "flow": flow, **metrics,
+                  "confusion_matrix_labels": ["No", "Yes"],
+                  "cv_scoring": "f1 (Churn=Yes), fold-local preprocessing",
+                  "cv_best_f1": float(search.best_score_), "best_params": best_params(search),
+                  "feature_count": len(transformer.feature_names_), "versions": versions}
+        save_json(RESULTS_DIR / f"duc_decision_tree_{flow}.json", result)
+        joblib.dump(tree, MODELS_DIR / f"decision_tree_{flow}.pkl")
+        joblib.dump(pipeline, MODELS_DIR / f"decision_tree_{flow}_pipeline.pkl")
+        with (REPORT_DIR / f"duc_predictions_{flow}.csv").open("w", encoding="utf-8", newline="") as handle:
+            writer = csv.writer(handle)
+            writer.writerow(["test_row", "y_true", "y_pred"])
+            writer.writerows(zip(range(len(test)), y_test, predictions))
+        print(json.dumps(result, ensure_ascii=True), flush=True)
+    files = [f"data/processed/{name}.csv" for name in (
+        "X_train_raw", "X_test_raw", "y_train", "y_test", "X_train_A", "X_test_A", "X_train_B", "X_test_B")]
+    manifest = {"versions": versions, "random_state": RANDOM_STATE, "cv_folds": 5,
+                "sha256": {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest() for name in files},
+                "test_history": "Test was inspected during earlier exploratory runs; not an untouched holdout.",
+                "feature_policy": "B's 29 features fixed before this correction; no Test-driven retuning."}
+    save_json(REPORT_DIR / "duc_run_manifest.json", manifest)
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--jobs", type=int, default=2)
+    args = parser.parse_args()
+    main(n_jobs=args.jobs)
