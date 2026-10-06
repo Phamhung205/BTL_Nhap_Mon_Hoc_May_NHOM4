@@ -20,8 +20,8 @@ và 29 cột, byte dữ liệu không đổi so với phiên bản trước củ
 4. Bổ sung kiểm tra schema, hàng CSV thiếu/thừa, header trùng, giá trị số sai,
    infinity, độ dài X/y và toàn bộ ma trận A/B so với raw trước khi fit cây cuối.
 5. Bổ sung môi trường Python 3.12 riêng `.venv-duc`, khóa thư viện chính trong
-   `requirements-duc.txt`, bảng CV từng fold/cấu hình, dự đoán, hash dữ liệu,
-   pipeline raw và hướng dẫn tái lập trong README.
+   `requirements.txt` chung của nhóm, bảng CV từng fold/cấu hình, dự đoán, hash dữ liệu,
+   pipeline raw và hướng dẫn tái lập (mục cuối của file này).
 6. Sửa mô tả lịch sử Test trong notebook: Test đã được xem ở các thử nghiệm
    trước; không được tuyên bố đây là holdout chưa từng được xem.
 
@@ -96,3 +96,57 @@ Notebook mặc định xác minh artifact từ CLI; bật RUN_TRAINING để ch�
 Các JSON trong `results/` chỉ có hai kết quả của Đức ngoài template, vẫn tương
 thích hàm đọc kết quả của Hùng. Bảng đối chiếu và manifest nằm trong `report/`
 để không làm bộ tổng hợp nhầm chúng thành kết quả mô hình mới.
+
+## Cách chạy lại phần Đức
+
+Phần Đức được kiểm tra với Python 3.12.10. Trên Windows, tạo môi trường riêng
+và dùng đúng Python trong môi trường này (không dùng `.venv` cũ):
+
+```powershell
+py -3.12 -m venv .venv-duc
+.\.venv-duc\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv-duc\Scripts\python.exe -m src.feature_engineering_b
+.\.venv-duc\Scripts\python.exe -m src.train_decision_tree --jobs 2
+.\.venv-duc\Scripts\python.exe -m unittest discover -s tests -v
+```
+
+Trên Linux/macOS: tạo môi trường bằng `python3.12 -m venv .venv-duc`,
+dùng `.venv-duc/bin/python` thay đường dẫn Windows. Các lệnh phải chạy từ gốc repo.
+
+`train_decision_tree` tự xuất lại B và chạy 3 phép tìm kiếm trên Train:
+A (45 cột), B_core (26 cột để đối chiếu), B (29 cột cố định).
+Mỗi phép gồm 120 cấu hình × 5 fold, nên có thể mất vài phút.
+Pipeline học điền thiếu, mã hóa và scaler A riêng ở từng fold; Test chỉ được
+đọc sau khi tìm tham số. Cây cuối fit trên CSV A/B của nhóm. Mã kiểm tra toàn
+bộ ma trận CSV với kết quả biến đổi từ raw trước khi fit, kể cả thứ tự dòng.
+
+Các file bàn giao:
+
+- `data/processed/X_train_B.csv`, `X_test_B.csv`: 5.634/1.409 dòng, 29 cột.
+- `models/feature_engineer_B.pkl`: nhận danh sách dictionary đọc bằng `read_raw_csv`.
+- `models/decision_tree_A.pkl`, `decision_tree_B.pkl`: nhận ma trận CSV A/B đúng thứ tự cột.
+- `models/decision_tree_A_pipeline.pkl`, `decision_tree_B_pipeline.pkl`: nhận raw dictionaries;
+  đã kiểm tra dự đoán giống cây nhận CSV.
+- `results/duc_decision_tree_A.json`, `duc_decision_tree_B.json`: metric thật cho Churn=Yes.
+- `report/duc_cv_*.csv`: từng cấu hình và điểm từng fold; `duc_feature_comparison.json`:
+  so sánh CV; `duc_predictions_*.csv`: nhãn/dự đoán theo vị trí dòng Test.
+- `report/duc_run_manifest.json`: phiên bản thư viện và SHA-256 dữ liệu.
+- `report/duc_review.md`: giải thích và các kiểm tra đã thực hiện.
+
+Luồng B chưa scale; Decision Tree không cần scale. Khi làm K-NN, Hải cần đặt
+scaler bên trong pipeline CV, fit trên Train và áp dụng cho Test.
+
+Notebook `notebooks/03_duc_feature_engineering_B_decision_tree.ipynb` mặc định
+kiểm tra và hiển thị artifact đã huấn luyện; đặt `RUN_TRAINING=True` để chạy lại
+toàn bộ tìm kiếm. Đăng ký kernel trong môi trường riêng và chạy kiểm tra notebook:
+
+```powershell
+.\.venv-duc\Scripts\python.exe -m ipykernel install --prefix .venv-duc --name duc-btl --display-name "Python (Duc BTL)"
+.\.venv-duc\Scripts\python.exe -m nbconvert --to notebook --execute --inplace notebooks\03_duc_feature_engineering_B_decision_tree.ipynb --ExecutePreprocessor.kernel_name=duc-btl --ExecutePreprocessor.timeout=1800
+```
+
+Lưu ý phương pháp: Test đã được xem trong những lần thử trước (B 67 rồi 29 cột),
+nên không được mô tả là một holdout chưa từng xem. Lần sửa giữ B 29 cột cố định;
+B_core chỉ để đối chiếu trên Train, không dùng điểm Test để đổi đặc trưng.
+Điểm CV sau dò tham số không phải ước lượng độc lập cuối cùng. Hai kết quả K-NN
+vẫn thuộc phần Hải; chương trình tổng hợp 4 mô hình sẽ báo thiếu cho tới khi Hải bổ sung.
