@@ -1,0 +1,23 @@
+{
+  "versions": {
+    "python": "3.12.10",
+    "scikit_learn": "1.9.0",
+    "numpy": "2.5.0",
+    "scipy": "1.18.0",
+    "joblib": "1.5.3"
+  },
+  "random_state": 42,
+  "cv_folds": 5,
+  "sha256": {
+    "data/processed/X_train_raw.csv": "37ea00da3ba488e056f1e6fb0c84188276091d853857f9df1fb5795b981338d6",
+    "data/processed/X_test_raw.csv": "0ffc7f79ca2707bc03e325194396807acec3d6584f46c24cf4bba0fd840cdb1d",
+    "data/processed/y_train.csv": "e2c308f236a53ee6788946cdb34145e42db08f9662be5bb07ee4b8af9682375b",
+    "data/processed/y_test.csv": "28a78b6ebeff7db01351c338bfeabd24b979561cf9bfe04565f07608242f3199",
+    "data/processed/X_train_A.csv": "d627bc4e194e0f2d077431933c388d4bf5a1fee982c1f2d3d712aa882f229e63",
+    "data/processed/X_test_A.csv": "22a25aa1540beb4c247605a9fe75f8f8e0968bf1fbf7817642997e62d68e7ab9",
+    "data/processed/X_train_B.csv": "8171ba27cbdec629c96653d722a927e46255aa7580ee1ebaf31409ed954a4287",
+    "data/processed/X_test_B.csv": "91b35e101478fdd921ee08e41576fc27fd11acab74ae14116749475f8efa12ba"
+  },
+  "test_history": "Test was inspected during earlier exploratory runs; not an untouched holdout.",
+  "feature_policy": "B's 29 features fixed before this correction; no Test-driven retuning."
+}

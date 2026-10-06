@@ -1,0 +1,38 @@
+{
+  "train_only": true,
+  "rows": [
+    {
+      "flow": "A",
+      "features": 45,
+      "cv_f1": 0.6209339280993824,
+      "best_params": {
+        "class_weight": "balanced",
+        "criterion": "entropy",
+        "max_depth": 8,
+        "min_samples_leaf": 40
+      }
+    },
+    {
+      "flow": "B_core",
+      "features": 26,
+      "cv_f1": 0.6221531481134194,
+      "best_params": {
+        "class_weight": "balanced",
+        "criterion": "entropy",
+        "max_depth": 8,
+        "min_samples_leaf": 40
+      }
+    },
+    {
+      "flow": "B",
+      "features": 29,
+      "cv_f1": 0.6262255391903124,
+      "best_params": {
+        "class_weight": "balanced",
+        "criterion": "entropy",
+        "max_depth": null,
+        "min_samples_leaf": 40
+      }
+    }
+  ]
+}

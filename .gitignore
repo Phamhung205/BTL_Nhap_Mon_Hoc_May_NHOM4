@@ -17,6 +17,7 @@ Thumbs.db
 # Moi truong ao
 venv/
 .venv/
+.venv-duc/
 env/
 
 # File tam
