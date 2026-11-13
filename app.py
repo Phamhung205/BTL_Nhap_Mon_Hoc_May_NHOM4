@@ -82,10 +82,10 @@ def render_sidebar():
     model_choice = st.sidebar.selectbox(
         "Chọn mô hình thực thi:",
         options=[
-            ("decision_tree_A", "Decision Tree - Luồng A (Đề xuất tốt nhất)"),
-            ("decision_tree_B", "Decision Tree - Luồng B"),
-            ("knn_A", "K-NN - Luồng A (K-NN tối ưu)"),
-            ("knn_B", "K-NN - Luồng B"),
+            ("decision_tree_A", "Decision Tree - Luồng A (Đề xuất tối ưu theo F1-score: 0.6258 & Recall: 0.7914)"),
+            ("decision_tree_B", "Decision Tree - Luồng B (Tối ưu Recall: 0.7995)"),
+            ("knn_A", "K-NN - Luồng A (K-NN tối ưu F1: 0.5992)"),
+            ("knn_B", "K-NN - Luồng B (Tối ưu Accuracy: 0.7906)"),
         ],
         format_func=lambda x: x[1],
     )[0]

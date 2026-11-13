@@ -62,8 +62,8 @@ Thuật toán K-NN (K-Nearest Neighbors) dự đoán nhãn của mẫu mới d�
 \end{itemize}
 Do K-NN hoàn toàn dựa trên khoảng cách hình học, dữ liệu đưa vào bắt buộc phải được chuẩn hóa về cùng thang đo để tránh các đặc trưng có biên độ lớn (như \texttt{MonthlyCharges} hay \texttt{tenure}) chi phối kết quả:
 \begin{itemize}
-    \item \textbf{Luồng A:} Đã được chuẩn hóa bằng \texttt{StandardScaler} ở khâu tiền xử lý của Mạnh.
-    \item \textbf{Luồng B:} Được đóng gói qua \texttt{Pipeline} kết hợp \texttt{StandardScaler} và \texttt{KNeighborsClassifier}. Việc chuẩn hóa diễn ra độc lập trên từng fold huấn luyện trong quá trình kiểm định chéo (5-fold Stratified CV) nhằm ngăn ngừa hiện tượng rò rỉ dữ liệu (data leakage).
+    \item \textbf{Luồng A:} Sử dụng tập dữ liệu đã được tiền xử lý và chuẩn hóa tập trung trên toàn bộ tập Train từ khâu của Mạnh để đảm bảo tính đồng bộ giữa các thành viên.
+    \item \textbf{Luồng B:} Được đóng gói hoàn chỉnh qua \texttt{Pipeline} kết hợp \texttt{StandardScaler} và \texttt{KNeighborsClassifier}. Quy trình chuẩn hóa diễn ra độc lập bên trong từng fold huấn luyện trong quá trình kiểm định chéo (5-fold Stratified CV), đảm bảo tính cô lập dữ liệu tuyệt đối và ngăn ngừa rò rỉ thống kê giữa các fold (fold-level leakage).
 \end{itemize}
 Không gian siêu tham số được tinh chỉnh gồm $k \in \{3, 5, 7, 9, 11, 15, 21, 31, 41, 51\}$, phương pháp gán trọng số \texttt{weights} (\texttt{uniform}, \texttt{distance}) và hệ đo khoảng cách (\texttt{euclidean}, \texttt{manhattan}), với mục tiêu tối ưu hóa chỉ số F1-score của lớp \texttt{Churn = Yes}.
 
@@ -119,10 +119,10 @@ Dựa trên mô hình có F1-score tốt nhất là Decision Tree Luồng A (b�
 
 \begin{itemize}
     \item \textbf{False Negatives (Bỏ sót khách Churn - Nguy hiểm nhất):}
-    Decision Tree chỉ bỏ sót 78 khách hàng (5.5\% tập Test), trong khi K-NN bỏ sót tới 149 khách hàng (10.6\%). Khảo sát sâu nhóm khách hàng FN cho thấy thời gian gắn bó trung bình của họ cao hơn hẳn nhóm Churn thông thường (31.7 tháng so với 12.4 tháng của nhóm TP), và có tới hơn 52\% khách hàng FN sở hữu hợp đồng dài hạn (1 năm hoặc 2 năm). Do mô hình học được quy luật chung là ``khách hàng hợp đồng dài hạn và thâm niên lâu ít rời mạng'', nên khi nhóm này có bất mãn đột xuất hoặc tìm được gói cước tốt hơn từ đối thủ, mô hình đã bị đánh lừa và dự đoán nhầm thành Ở lại.
+    Decision Tree chỉ bỏ sót 78 khách hàng (5.5\% tập Test), trong khi K-NN bỏ sót tới 149 khách hàng (10.6\%). Khảo sát sâu nhóm khách hàng FN cho thấy thời gian gắn bó trung bình của họ cao hơn hẳn nhóm Churn thông thường (31.7 tháng so với 12.4 tháng của nhóm TP), và có tới hơn 52\% khách hàng FN sở hữu hợp đồng dài hạn (1 năm hoặc 2 năm). Do mô hình học được quy luật thống kê chung là ``khách hàng hợp đồng dài hạn và thâm niên lâu có xác suất rời mạng thấp'', nên mô hình có xu hướng phân loại nhầm nhóm này thành Ở lại. Về mặt kinh doanh, nhóm nghiên cứu đặt giả thuyết rằng các ca rời mạng này có thể xuất phát từ các yếu tố ngoại cảnh chưa được số hóa trong tập dữ liệu (ví dụ: thay đổi địa điểm sinh sống, sự cố gián đoạn dịch vụ cục bộ, hoặc các yếu tố cá nhân ngoài các trường thông tin hợp đồng hiện có).
     
     \item \textbf{False Positives (Nhầm khách ở lại thành Churn):}
-    Decision Tree có 276 trường hợp FP (19.6\%), K-NN có 152 trường hợp FP (10.8\%). Khảo sát cho thấy hơn 97\% khách hàng FP sử dụng loại hợp đồng từng tháng (\texttt{Month-to-month}) và có mức cước phí hàng tháng khá cao ($\approx 70.8\$$/tháng). Vì hồ sơ dịch vụ của họ mang đầy đủ đặc trưng nguy cơ cao, mô hình dự đoán họ sẽ Churn, nhưng trên thực tế họ vẫn chọn tiếp tục sử dụng. Nhóm này là đối tượng phù hợp để nhà mạng chăm sóc, tri ân giảm cước nhằm chuyển hóa sang hợp đồng dài hạn.
+    Decision Tree có 276 trường hợp FP (19.6\%), K-NN có 152 trường hợp FP (10.8\%). Khảo sát cho thấy hơn 97\% khách hàng FP sử dụng loại hợp đồng từng tháng (\texttt{Month-to-month}) và có mức cước phí hàng tháng khá cao ($\approx 70.8\$$/tháng). Vì hồ sơ sử dụng của họ mang đầy đủ đặc trưng định lượng của nhóm rủi ro cao, mô hình dự đoán họ sẽ Churn, nhưng trên thực tế họ vẫn chọn tiếp tục sử dụng. Nhóm này là đối tượng phù hợp để nhà mạng triển khai các chính sách chăm sóc, tri ân giảm cước nhằm chuyển hóa sang hợp đồng dài hạn.
 \end{itemize}
 
 \section{Thảo luận}
