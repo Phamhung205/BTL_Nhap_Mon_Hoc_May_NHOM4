@@ -1,5 +1,5 @@
-model_id,member,model,flow,accuracy,precision,recall,f1_score,confusion_matrix
-decision_tree_A,Đức,Decision Tree,A,,,,,
-decision_tree_B,Đức,Decision Tree,B,,,,,
-knn_A,Hải,K-NN,A,,,,,
-knn_B,Hải,K-NN,B,,,,,
+﻿model_id,member,model,flow,accuracy,precision,recall,f1_score,confusion_matrix
+decision_tree_A,Đức,Decision Tree,A,0.7487579843860894,0.5174825174825175,0.7914438502673797,0.6257928118393234,"[[759, 276], [78, 296]]"
+decision_tree_B,Đức,Decision Tree,B,0.7345635202271115,0.5,0.7994652406417112,0.6152263374485597,"[[736, 299], [75, 299]]"
+knn_A,Hải,K-NN,A,0.7863733144073811,0.596816976127321,0.6016042780748663,0.5992010652463382,"[[883, 152], [149, 225]]"
+knn_B,Hải,K-NN,B,0.7906316536550745,0.6238244514106583,0.5320855614973262,0.5743145743145743,"[[915, 120], [175, 199]]"

@@ -1,0 +1,26 @@
+{
+  "model_id": "knn_A",
+  "member": "Hải",
+  "model": "K-NN",
+  "flow": "A",
+  "accuracy": 0.7863733144073811,
+  "precision": 0.596816976127321,
+  "recall": 0.6016042780748663,
+  "f1_score": 0.5992010652463382,
+  "confusion_matrix": [
+    [
+      883,
+      152
+    ],
+    [
+      149,
+      225
+    ]
+  ],
+  "best_params": {
+    "metric": "manhattan",
+    "n_neighbors": 41,
+    "weights": "uniform"
+  },
+  "cv_f1": 0.6067692888460561
+}

@@ -1,0 +1,31 @@
+Customer_Index,Contract,tenure,MonthlyCharges,PaymentMethod,InternetService,Actual,Predicted,Prediction_Type,Churn_Probability
+39,Month-to-month,31,55.25,Electronic check,DSL,Yes,No,FN (Bỏ sót Churn),0.0
+49,Month-to-month,23,75.6,Bank transfer (automatic),Fiber optic,Yes,No,FN (Bỏ sót Churn),0.27406361047961686
+61,One year,45,20.4,Electronic check,No,Yes,No,FN (Bỏ sót Churn),0.22566311370389563
+67,Month-to-month,18,49.55,Mailed check,DSL,Yes,No,FN (Bỏ sót Churn),0.48393454670979735
+68,One year,12,74.05,Mailed check,DSL,Yes,No,FN (Bỏ sót Churn),0.19069119222307973
+82,One year,17,98.6,Bank transfer (automatic),Fiber optic,Yes,No,FN (Bỏ sót Churn),0.2943736098898257
+139,Month-to-month,69,99.45,Credit card (automatic),Fiber optic,Yes,No,FN (Bỏ sót Churn),0.3826502311248071
+165,Month-to-month,2,20.65,Mailed check,No,Yes,No,FN (Bỏ sót Churn),0.3563802307559843
+167,One year,54,106.55,Bank transfer (automatic),Fiber optic,Yes,No,FN (Bỏ sót Churn),0.4888602936605623
+210,One year,63,99.9,Bank transfer (automatic),Fiber optic,Yes,No,FN (Bỏ sót Churn),0.30698485101333195
+212,One year,25,89.05,Electronic check,Fiber optic,Yes,No,FN (Bỏ sót Churn),0.09970130558365857
+219,Month-to-month,31,65.25,Credit card (automatic),DSL,Yes,No,FN (Bỏ sót Churn),0.2226386000143442
+286,Month-to-month,15,55.7,Mailed check,DSL,Yes,No,FN (Bỏ sót Churn),0.48393454670979735
+297,Month-to-month,12,19.0,Mailed check,No,Yes,No,FN (Bỏ sót Churn),0.15581237765396785
+326,Two year,67,108.75,Credit card (automatic),Fiber optic,Yes,No,FN (Bỏ sót Churn),0.41672854499918177
+1,Month-to-month,8,100.15,Credit card (automatic),Fiber optic,No,Yes,FP (Nhầm thành Churn),0.978787807127486
+3,Month-to-month,18,78.2,Electronic check,Fiber optic,No,Yes,FP (Nhầm thành Churn),0.7214441986825023
+5,Month-to-month,21,99.85,Credit card (automatic),Fiber optic,No,Yes,FP (Nhầm thành Churn),0.775820056232427
+6,Month-to-month,21,99.15,Bank transfer (automatic),Fiber optic,No,Yes,FP (Nhầm thành Churn),0.775820056232427
+10,Month-to-month,70,106.05,Electronic check,Fiber optic,No,Yes,FP (Nhầm thành Churn),0.5356541995599845
+12,Month-to-month,49,30.2,Bank transfer (automatic),DSL,No,Yes,FP (Nhầm thành Churn),0.5156989783204586
+17,Month-to-month,15,91.0,Electronic check,Fiber optic,No,Yes,FP (Nhầm thành Churn),0.8908293586585134
+18,One year,67,105.7,Bank transfer (automatic),Fiber optic,No,Yes,FP (Nhầm thành Churn),0.6220956050637755
+21,Month-to-month,21,28.5,Electronic check,DSL,No,Yes,FP (Nhầm thành Churn),0.6158059891254363
+24,Month-to-month,51,69.15,Mailed check,Fiber optic,No,Yes,FP (Nhầm thành Churn),0.6641527599486524
+30,Month-to-month,54,90.05,Electronic check,Fiber optic,No,Yes,FP (Nhầm thành Churn),0.6576565209060617
+31,Month-to-month,1,24.2,Mailed check,DSL,No,Yes,FP (Nhầm thành Churn),0.8659513419809912
+41,Month-to-month,2,91.45,Electronic check,Fiber optic,No,Yes,FP (Nhầm thành Churn),0.903436033471647
+42,Month-to-month,33,70.4,Bank transfer (automatic),Fiber optic,No,Yes,FP (Nhầm thành Churn),0.6641527599486524
+46,Month-to-month,8,75.25,Electronic check,Fiber optic,No,Yes,FP (Nhầm thành Churn),0.8289131118931139
