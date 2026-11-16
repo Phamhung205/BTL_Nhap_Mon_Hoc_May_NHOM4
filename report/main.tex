@@ -9,139 +9,322 @@
 \usepackage{float}
 \usepackage{array}
 \usepackage{longtable}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
 \usepackage[hidelinks]{hyperref}
 
 \geometry{left=3cm,right=2cm,top=2cm,bottom=2cm}
 
-\title{BÁO CÁO BÀI TẬP LỚN\\
-ĐỀ TÀI 9: DỰ ĐOÁN KHÁCH HÀNG RỜI BỎ DỊCH VỤ VIỄN THÔNG}
-\author{Nhóm: Hùng (Đội trưởng), Mạnh, Đức, Hải}
+\title{\textbf{BÁO CÁO BÀI TẬP LỚN}\\
+\Large HỌC PHẦN: NHẬP MÔN HỌC MÁY (FIT4013)\\
+\large \textbf{ĐỀ TÀI 9: DỰ ĐOÁN KHÁCH HÀNG RỜI BỎ DỊCH VỤ VIỄN THÔNG}\\
+\large (TELCO CUSTOMER CHURN PREDICTION)}
+\author{\textbf{Nhóm 4}:\\
+Nguyễn Văn Hùng (Trưởng nhóm - Quản lý chung, Báo cáo \LaTeX, Đánh giá)\\
+Bùi Đình Mạnh (EDA, Chia dữ liệu Train/Test, Tiền xử lý Luồng A)\\
+Trần Minh Đức (Kỹ thuật đặc trưng Luồng B, Cây quyết định Decision Tree)\\
+Lê Hoàng Hải (K-Nearest Neighbors, Phân tích lỗi, Ứng dụng Demo Streamlit)}
 \date{Năm học 2026--2027}
 
 \begin{document}
 
 \maketitle
+\thispagestyle{empty}
+\newpage
+
 \tableofcontents
 \newpage
 
-\section{Đặt vấn đề}
-Khách hàng rời bỏ dịch vụ (customer churn) là bài toán phân loại nhằm dự đoán khả năng một khách hàng ngừng sử dụng dịch vụ viễn thông. Mục tiêu của đề tài là xây dựng và so sánh các mô hình học máy trên cùng tập kiểm tra để đánh giá khả năng nhận diện nhóm khách hàng có nguy cơ rời bỏ.
+\section{Đặt vấn đề và phân tích yêu cầu}
 
-\section{Mô tả và khám phá dữ liệu}
-% Hùng ghép phần EDA do Mạnh cung cấp vào đây.
-\textit{Phần này sẽ được cập nhật từ kết quả EDA của Mạnh.}
+\subsection{Bối cảnh và mục tiêu đề tài}
+Trong thị trường viễn thông hiện đại với tính cạnh tranh khốc liệt và mức độ bão hòa cao, việc giữ chân khách hàng hiện tại đóng vai trò sống còn đối với sự phát triển bền vững của doanh nghiệp. Các nghiên cứu quản trị kinh doanh đã chỉ ra rằng chi phí để tiếp cận và thu hút một khách hàng mới thường gấp từ 5 đến 7 lần so với chi phí duy trì một khách hàng hiện hữu. Khi một khách hàng rời bỏ dịch vụ (\textit{Customer Churn}), doanh nghiệp không chỉ mất đi nguồn doanh thu định kỳ mà còn phải đối mặt với nguy cơ sụt giảm thị phần và gia tăng chi phí tiếp thị bù đắp.
 
-\section{Tiền xử lý dữ liệu}
-\subsection{Chia dữ liệu Train/Test}
-Nhóm thống nhất chia dữ liệu bằng \texttt{train\_test\_split} với các tham số:
+Mục tiêu cốt lõi của đề tài là xây dựng một quy trình học máy (\textit{Machine Learning Pipeline}) hoàn chỉnh, có khả năng dự đoán chính xác xác suất một khách hàng sẽ ngừng sử dụng dịch vụ viễn thông dựa trên thông tin nhân khẩu học, gói cước và hành vi tiêu dùng. Thông qua mô hình này, doanh nghiệp có thể chủ động sàng lọc sớm nhóm khách hàng có rủi ro rời bỏ cao để kịp thời áp dụng các biện pháp chăm sóc khách hàng (CSKH), điều chỉnh gói cước hoặc tặng ưu đãi phù hợp trước khi khách hàng chính thức cắt hợp đồng.
+
+\subsection{Khám phá và phân tích dữ liệu (EDA)}
+Dữ liệu sử dụng trong đề tài là bộ dữ liệu thực tế \textbf{Telco Customer Churn} (do IBM cung cấp), bao gồm $7.043$ khách hàng với $21$ thuộc tính ban đầu. Khảo sát và phân tích dữ liệu khám phá (EDA) trên tập dữ liệu đem lại các phát hiện kỹ thuật then chốt:
+
+\begin{enumerate}
+    \item \textbf{Cấu trúc thuộc tính và kiểu dữ liệu:} Bộ dữ liệu gồm 3 đặc trưng định lượng (\texttt{tenure}, \texttt{MonthlyCharges}, \texttt{TotalCharges}), 16 đặc trưng định tính phân loại (thông tin hợp đồng, phương thức thanh toán, các dịch vụ giá trị gia tăng), 1 cột mã định danh duy nhất (\texttt{customerID}) và 1 cột nhãn mục tiêu nhị phân (\texttt{Churn}).
+    \item \textbf{Phát hiện giá trị bất thường và dữ liệu thiếu:} Cột \texttt{TotalCharges} ban đầu được pandas nhận diện là kiểu chuỗi (\texttt{object}) do có $11$ dòng chỉ chứa ký tự khoảng trắng (\texttt{" "}). Phân tích sâu cho thấy toàn bộ $11$ trường hợp này đều là khách hàng mới đăng ký với thời gian sử dụng \texttt{tenure = 0}, chưa phát sinh chu kỳ thanh toán nào. Nhóm đã thực hiện chuyển đổi kiểu số thực (\texttt{float64}), gán các giá trị này về \texttt{NaN} để điền khuyết bằng $0$ (thay vì loại bỏ mẫu hay gán trung vị tùy tiện). Cột \texttt{customerID} là mã định danh ngẫu nhiên không có ý nghĩa dự báo và có nguy cơ gây bùng nổ số chiều khi One-Hot Encoding nên được loại bỏ ngay từ đầu.
+    \item \textbf{Phân tích mất cân bằng dữ liệu (Imbalanced Data):} Trong tập dữ liệu, có $5.174$ khách hàng chọn ở lại (\texttt{No}, chiếm $73.42\%$) và $1.869$ khách hàng rời bỏ dịch vụ (\texttt{Yes}, chiếm $26.58\%$). Tỷ lệ chênh lệch xấp xỉ $3:1$ này khẳng định rằng \textbf{độ chính xác tổng thể (Accuracy) hoàn toàn không phải là độ đo phù hợp để đánh giá bài toán}. Nếu một mô hình ngây thơ luôn dự đoán khách hàng sẽ ở lại, nó vẫn đạt Accuracy $73.4\%$, nhưng giá trị thực tiễn bằng 0 vì bỏ sót $100\%$ khách hàng rời mạng. Do đó, các chỉ số \textbf{Recall} và \textbf{F1-score} của lớp \texttt{Churn = Yes} là tiêu chí đánh giá trọng tâm.
+    \item \textbf{Tương quan giữa các đặc trưng với hành vi rời mạng:}
+    \begin{itemize}
+        \item \textbf{Loại hợp đồng (\texttt{Contract}):} Khách hàng sử dụng hợp đồng từng tháng (\texttt{Month-to-month}) có tỷ lệ rời mạng lên tới $42.75\%$, cao vượt trội so với hợp đồng một năm ($11.1\%$) và hợp đồng hai năm ($2.9\%$).
+        \item \textbf{Dịch vụ Internet (\texttt{InternetService}):} Nhóm khách hàng sử dụng cáp quang (\texttt{Fiber optic}) có tỷ lệ rời bỏ rất cao ($42.09\%$) so với cáp đồng DSL ($18.69\%$) và nhóm không dùng Internet ($7.4\%$).
+        \item \textbf{Phương thức thanh toán (\texttt{PaymentMethod}):} Thanh toán bằng séc điện tử (\texttt{Electronic check}) có tỷ lệ rời mạng cao nhất ($45.74\%$), trong khi các phương thức trích nợ tự động qua ngân hàng hay thẻ tín dụng chỉ có tỷ lệ rời mạng khoảng $15\% - 17\%$.
+        \item \textbf{Dịch vụ bảo vệ và hỗ trợ:} Nhóm khách hàng thiếu các dịch vụ bảo vệ như \texttt{OnlineSecurity} và \texttt{TechSupport} có tỷ lệ rời mạng đều trên $41\%$, cao gấp gần 3 lần so với nhóm có đăng ký các dịch vụ này.
+        \item \textbf{Thời gian gắn bó (\texttt{tenure}) và cước phí (\texttt{MonthlyCharges}):} Khách hàng rời mạng tập trung mạnh ở nhóm mới gia nhập với trung vị thời gian gắn bó chỉ $10$ tháng (so với $38$ tháng của nhóm ở lại) và có mức cước hàng tháng trung vị cao hơn đáng kể ($79.95\$$ so với $64.40\$$).
+    \end{itemize}
+\end{enumerate}
+
+\section{Thiết kế giải pháp và quy trình học máy}
+
+\subsection{Sơ đồ quy trình tổng quát (Pipeline)}
+Quy trình thực hiện bài tập lớn được chuẩn hóa thành pipeline khép kín, minh bạch, đảm bảo tính tái lập 100\%:
+Dữ liệu thô $\rightarrow$ Ép kiểu \texttt{TotalCharges} \& Loại bỏ \texttt{customerID} $\rightarrow$ Phân chia Train/Test phân tầng một lần duy nhất $\rightarrow$ Tiền xử lý theo 2 luồng độc lập (Luồng A cơ bản \& Luồng B cải tiến) $\rightarrow$ Huấn luyện và tinh chỉnh siêu tham số bằng 5-fold Stratified Cross-Validation trên Train $\rightarrow$ Đánh giá độc lập trên tập Test chung $\rightarrow$ Phân tích lỗi (Error Analysis) $\rightarrow$ Đóng gói ứng dụng Demo Streamlit.
+
+\subsection{Phân chia dữ liệu và nguyên tắc hạn chế Data Leakage}
+Để ngăn ngừa triệt để hiện tượng rò rỉ dữ liệu (\textit{Data Leakage}) và đảm bảo việc đối chiếu giữa các phương án là công bằng tuyệt đối:
 \begin{itemize}
-    \item \texttt{test\_size = 0.20}
-    \item \texttt{random\_state = 42}
-    \item \texttt{stratify = y}
+    \item Nhóm sử dụng hàm \texttt{train\_test\_split} phân chia toàn bộ $7.043$ mẫu thành tập Train ($80\%$, $5.634$ mẫu) và tập Test ($20\%$, $1.409$ mẫu) cố định duy nhất một lần với \texttt{random\_state = 42}.
+    \item Bắt buộc sử dụng tham số \texttt{stratify = y} để bảo toàn tỷ lệ phân phối lớp mục tiêu ($26.5\%$ Churn) tương đương nhau trên cả hai tập dữ liệu.
+    \item \textbf{Quy tắc cô lập dữ liệu nghiêm ngặt:} Mọi phép tính thống kê (tính trung vị điền khuyết, giá trị trung bình $\mu$, độ lệch chuẩn $\sigma$ trong chuẩn hóa, và các danh mục phân loại One-Hot) \textbf{chỉ được học (\texttt{fit}) trên tập Train}. Tập Test tuyệt đối chỉ áp dụng phép chuyển đổi (\texttt{transform}) dựa trên các tham số đã đóng băng từ Train.
 \end{itemize}
-Việc cố định cách chia dữ liệu giúp các mô hình được đánh giá trên cùng một tập Test.
 
-\subsection{Luồng A}
-% Ghép mô tả tiền xử lý của Mạnh: missing value, One-Hot Encoding, StandardScaler.
-\textit{Cập nhật nội dung Luồng A từ Mạnh.}
-
-\subsection{Luồng B}
-% Ghép Feature Engineering của Đức.
-\textit{Cập nhật nội dung Luồng B từ Đức.}
-
-\section{Thiết kế giải pháp}
-\subsection{Decision Tree}
-% Ghép mô tả thuật toán và GridSearchCV của Đức.
-\textit{Cập nhật từ Đức.}
-
-\subsection{K-Nearest Neighbors}
-Thuật toán K-NN (K-Nearest Neighbors) dự đoán nhãn của mẫu mới dựa trên đa số phiếu bầu của $k$ láng giềng gần nhất trong không gian đặc trưng. Khoảng cách giữa các mẫu được đo bằng chuẩn khoảng cách Euclidean hoặc Manhattan:
+\subsection{Luồng A: Pipeline tiền xử lý cơ bản (Baseline Preprocessing)}
+Luồng A được xây dựng theo chuẩn học máy truyền thống thông qua \texttt{ColumnTransformer} của scikit-learn, bao gồm hai nhánh xử lý song song:
 \begin{itemize}
-    \item Khoảng cách Euclidean: $d(x, y) = \sqrt{\sum_{i=1}^p (x_i - y_i)^2}$
-    \item Khoảng cách Manhattan: $d(x, y) = \sum_{i=1}^p |x_i - y_i|$
+    \item \textbf{Nhánh đặc trưng số (\texttt{numeric\_pipeline}):} Áp dụng \texttt{SimpleImputer(strategy="median")} để điền các giá trị thiếu bằng trung vị (chống chịu ngoại lệ tốt hơn trung bình), sau đó đưa qua \texttt{StandardScaler} để chuẩn hóa đặc trưng về phân phối chuẩn chuẩn tắc có $\mu = 0$ và $\sigma = 1$. Việc chuẩn hóa này là yêu cầu bắt buộc đối với thuật toán K-NN nhằm triệt tiêu chênh lệch thang đo giữa \texttt{tenure} ($0 - 72$) và \texttt{TotalCharges} ($0 - 8600$).
+    \item \textbf{Nhánh đặc trưng phân loại (\texttt{categorical\_pipeline}):} Áp dụng \texttt{SimpleImputer(strategy="most\_frequent")} để điền khuyết bằng giá trị xuất hiện nhiều nhất, sau đó mã hóa One-Hot toàn diện bằng \texttt{OneHotEncoder(handle\_unknown="ignore", sparse\_output=False)}.
 \end{itemize}
-Do K-NN hoàn toàn dựa trên khoảng cách hình học, dữ liệu đưa vào bắt buộc phải được chuẩn hóa về cùng thang đo để tránh các đặc trưng có biên độ lớn (như \texttt{MonthlyCharges} hay \texttt{tenure}) chi phối kết quả:
+Đầu ra của Luồng A mở rộng không gian lên \textbf{45 đặc trưng số hóa}, giữ lại toàn vẹn thông tin chi tiết của từng danh mục dịch vụ. Toàn bộ tham số được lưu vết vào tệp \texttt{models/preprocessor\_A.pkl}.
+
+\subsection{Luồng B: Pipeline kỹ thuật đặc trưng cải tiến (Feature Engineering)}
+Khác với Luồng A thực hiện One-Hot máy móc, Luồng B được thiết kế dựa trên các tri thức kinh doanh sâu sắc đúc kết từ khâu EDA nhằm tinh gọn không gian biểu diễn nhưng gia tăng tối đa sức mạnh phân loại:
+\begin{enumerate}
+    \item \textbf{Điền khuyết dựa trên logic nghiệp vụ:} Giá trị thiếu ở \texttt{TotalCharges} xuất hiện ở khách hàng mới (\texttt{tenure = 0}), do đó tổng cước phát sinh được gán chính xác bằng $\texttt{tenure} \times \texttt{MonthlyCharges} = 0$.
+    \item \textbf{Mã hóa thứ bậc (Ordinal Encoding):} Chuyển đổi các biến có trật tự thời gian và mức độ cam kết về dạng số tự nhiên có nghĩa: \texttt{ContractLength} ($0$: Month-to-month, $1$: One year, $2$: Two year) và \texttt{PhoneLines} ($0$: No phone, $1$: Single, $2$: Multiple).
+    \item \textbf{Phân nhóm thâm niên và biến đổi phi tuyến:} Chia thời gian gắn bó thành 4 giai đoạn vòng đời khách hàng qua \texttt{TenureGroup} ($0-12$ tháng: rủi ro cao; $13-24$ tháng; $25-48$ tháng; $>48$ tháng: khách hàng trung thành). Đồng thời áp dụng hàm biến đổi logarit $\log(1 + \texttt{TotalCharges})$ để làm mượt phân phối lệch phải của tổng cước lũy kế.
+    \item \textbf{Chỉ số thiếu hụt dịch vụ bảo vệ (\texttt{MissingProtectionCount}):} Tạo đặc trưng đếm số lượng dịch vụ bảo mật/hỗ trợ mà khách hàng chưa sử dụng trong số 4 dịch vụ cốt lõi (\texttt{OnlineSecurity}, \texttt{OnlineBackup}, \texttt{DeviceProtection}, \texttt{TechSupport}), mang giá trị từ $0$ đến $4$.
+    \item \textbf{Đặc trưng tương tác nguy cơ cao (High-risk Interactions):} Kết hợp các điều kiện nhạy cảm nhất qua phép nhân logic: \texttt{MonthToMonth\_Fiber} (khách dùng cáp quang nhưng ký hợp đồng từng tháng) và \texttt{MonthToMonth\_ElectronicCheck} (khách ký từng tháng và thanh toán séc điện tử).
+    \item \textbf{Lọc bỏ nhiễu:} Loại bỏ các thuộc tính không có tương quan rõ ràng tới quyết định rời mạng qua EDA như \texttt{gender}, \texttt{StreamingTV}, \texttt{StreamingMovies}.
+\end{enumerate}
+Luồng B rút gọn dữ liệu từ 45 chiều xuống chỉ còn \textbf{17 đặc trưng tinh chọn}, giúp giảm hơn $62\%$ số chiều tính toán và nâng cao tính diễn giải của mô hình.
+
+\subsection{Lựa chọn thuật toán và không gian siêu tham số}
+Đề tài lựa chọn hai thuật toán học máy có giám sát tiêu biểu đã được trang bị trong chương trình:
+\begin{enumerate}
+    \item \textbf{Cây quyết định (Decision Tree):}
+    Thuật toán phân tách không gian mẫu dựa trên các ngưỡng điều kiện tối ưu nhằm cực đại hóa độ giảm độ vẩn đục (Impurity Reduction). Để khắc phục nguy cơ quá khớp (overfitting) và xử lý vấn đề mất cân bằng lớp, không gian tìm kiếm siêu tham số bao gồm:
+    \begin{itemize}
+        \item Tiêu chí phân nhánh: \texttt{criterion} $\in \{\text{"gini"}, \text{"entropy"}\}$.
+        \item Khống chế độ sâu tối đa: \texttt{max\_depth} $\in [3, 4, 5, 6, 7, 8, 10, 12, \text{None}]$.
+        \item Số mẫu tối thiểu ở nút lá: \texttt{min\_samples\_leaf} $\in [1, 5, 10, 20, 30, 50, 75, 100]$.
+        \item Cân bằng trọng số lớp: \texttt{class\_weight} $\in \{\text{None}, \text{"balanced"}\}$. Tùy chọn \texttt{"balanced"} tự động gán trọng số nghịch đảo với tần suất lớp: $w_j = \frac{N}{2 \times N_j}$, giúp phạt nặng sai số trên lớp Churn thiểu số.
+    \end{itemize}
+
+    \item \textbf{K-Láng giềng gần nhất (K-Nearest Neighbors - K-NN):}
+    Thuật toán phân loại phi tham số dựa trên khoảng cách hình học giữa mẫu mới với $k$ điểm láng giềng trong không gian $p$ chiều:
+    \begin{itemize}
+        \item Khoảng cách Euclidean ($L_2$ norm): $d(x, y) = \sqrt{\sum_{i=1}^p (x_i - y_i)^2}$.
+        \item Khoảng cách Manhattan ($L_1$ norm): $d(x, y) = \sum_{i=1}^p |x_i - y_i|$.
+        \item Tinh chỉnh số láng giềng $k \in \{3, 5, 7, 9, 11, 15, 21, 31, 41, 51\}$ và phương pháp bỏ phiếu \texttt{weights} $\in \{\text{"uniform"}, \text{"distance"}\}$.
+        \item \textbf{Đóng gói Pipeline chống Data Leakage ở Luồng B:} Do Luồng B chứa các biến có đơn vị cước phí lớn, K-NN Luồng B được đóng gói bằng \texttt{Pipeline([('scaler', StandardScaler()), ('knn', KNeighborsClassifier())])}. Nhờ đó, việc chuẩn hóa dữ liệu diễn ra độc lập bên trong từng fold huấn luyện của kiểm định chéo (fold-level isolation), ngăn chặn tuyệt đối rò rỉ độ lệch chuẩn sang fold thẩm định.
+    \end{itemize}
+\end{enumerate}
+
+\section{Phân tích mã nguồn và chức năng}
+
+\subsection{Cấu trúc chương trình}
+Mã nguồn của dự án được tổ chức theo kiến trúc module hóa chuyên nghiệp, tách biệt rõ ràng giữa logic cốt lõi, notebook phân tích thực nghiệm, bài kiểm thử và giao diện người dùng:
+
+\begin{lstlisting}[basicstyle=\ttfamily\small,frame=single]
+BTL_Nhap_Mon_Hoc_May_NHOM4/
+|-- data/
+|   |-- raw/                 # Dữ liệu gốc WA_Fn-UseC_-Telco-Customer-Churn.csv
+|   |-- processed/           # X_train/test_raw, Luồng A, Luồng B, y_train/test
+|-- models/                  # preprocessor_A.pkl, decision_tree_A/B, knn_A/B
+|-- notebooks/               # 7 Jupyter Notebooks phân tích và đối sánh
+|-- report/                  # Báo cáo LaTeX, biểu đồ figures, bảng so sánh CSV
+|-- results/                 # Kết quả thực nghiệm JSON và 30 mẫu ca lỗi
+|-- src/                     # Mã nguồn logic tái sử dụng
+|   |-- config.py            # Hằng số toàn cục (RANDOM_STATE=42, TEST_SIZE=0.2)
+|   |-- split_data.py        # Hàm chia phân tầng stratify=y
+|   |-- evaluate.py          # Bộ độ đo Accuracy, Precision, Recall, F1, CM
+|   |-- feature_engineering_b.py # Hàm tạo 17 đặc trưng Luồng B
+|   |-- train_decision_tree.py   # GridSearchCV & huấn luyện Decision Tree
+|   |-- train_knn.py             # Pipeline & GridSearchCV cho K-NN
+|   |-- error_analysis.py        # Trích xuất và trực quan hóa phân tích lỗi
+|   |-- aggregate_results.py     # Tổng hợp tự động kết quả sang CSV
+|-- tests/                   # Bộ kiểm thử tự động unittest (test_duc, test_hai)
+|-- app.py                   # Giao diện web demo tương tác bằng Streamlit
+|-- AI_USAGE.md              # Khai báo minh bạch việc sử dụng công cụ AI
+|-- requirements.txt         # Khai báo phiên bản thư viện phụ thuộc
+|-- README.md                # Hướng dẫn thiết lập và tái tạo thí nghiệm
+\end{lstlisting}
+
+\subsection{Chức năng của các module và notebook chính}
 \begin{itemize}
-    \item \textbf{Luồng A:} Sử dụng tập dữ liệu đã được tiền xử lý và chuẩn hóa tập trung trên toàn bộ tập Train từ khâu của Mạnh để đảm bảo tính đồng bộ giữa các thành viên.
-    \item \textbf{Luồng B:} Được đóng gói hoàn chỉnh qua \texttt{Pipeline} kết hợp \texttt{StandardScaler} và \texttt{KNeighborsClassifier}. Quy trình chuẩn hóa diễn ra độc lập bên trong từng fold huấn luyện trong quá trình kiểm định chéo (5-fold Stratified CV), đảm bảo tính cô lập dữ liệu tuyệt đối và ngăn ngừa rò rỉ thống kê giữa các fold (fold-level leakage).
+    \item \texttt{src/config.py} và \texttt{src/split_data.py}: Thiết lập các quy ước nghiêm ngặt về hằng số tái lập (\texttt{random\_state = 42}), bảo đảm cả 4 thành viên đều thực nghiệm trên một nền tảng dữ liệu đồng nhất.
+    \item \texttt{src/feature_engineering_b.py}: Đóng gói hàm \texttt{tao\_dac\_trung\_B(X)}, thực hiện biến đổi dữ liệu trên từng mẫu (vectorized row-wise), bảo đảm tính tương thích hoàn hảo cho cả dữ liệu huấn luyện hàng loạt và dữ liệu dự đoán thời gian thực từ giao diện người dùng.
+    \item \texttt{src/evaluate.py}: Hàm \texttt{danh\_gia\_mo\_hinh()} tính toán chuẩn hóa toàn bộ metric đánh giá cho lớp dương (\texttt{Churn = Yes}) với cơ chế phòng ngừa lỗi chia cho 0 (\texttt{zero\_division = 0}).
+    \item \texttt{notebooks/}: Gồm 7 notebook phân định rõ trách nhiệm cá nhân: Mạnh phụ trách EDA và Luồng A (\texttt{01}, \texttt{02}); Đức phụ trách Luồng B và Cây quyết định (\texttt{03}, \texttt{04}); Hải phụ trách K-NN và Phân tích lỗi (\texttt{05}, \texttt{06}); Hùng phụ trách tổng hợp kiểm chứng đối sánh (\texttt{tong\_hop\_ket\_qua.ipynb}).
+    \item \texttt{tests/}: Chứa 7 kiểm thử tự động với \texttt{unittest}. Kiểm tra tính toàn vẹn kích thước mảng ($5.634 \times 17$ và $1.409 \times 17$), kiểm tra không có giá trị khuyết thiếu \texttt{NaN}, kiểm tra logic xử lý khách hàng mới \texttt{tenure = 0}, và kiểm chứng tính trùng khớp $100\%$ giữa các tệp kết quả JSON với dự đoán thực tế của mô hình \texttt{.pkl}.
 \end{itemize}
-Không gian siêu tham số được tinh chỉnh gồm $k \in \{3, 5, 7, 9, 11, 15, 21, 31, 41, 51\}$, phương pháp gán trọng số \texttt{weights} (\texttt{uniform}, \texttt{distance}) và hệ đo khoảng cách (\texttt{euclidean}, \texttt{manhattan}), với mục tiêu tối ưu hóa chỉ số F1-score của lớp \texttt{Churn = Yes}.
 
-\subsection{Chỉ số đánh giá}
-Các mô hình được đánh giá bằng Accuracy, Precision, Recall, F1-score và Confusion Matrix. Đối với bài toán Churn, Recall và F1-score của lớp \texttt{Churn = Yes} được chú ý bên cạnh Accuracy vì lớp khách hàng rời bỏ có thể không chiếm đa số.
+\subsection{Đoạn mã quan trọng giải thích quy trình}
+Dưới đây là đoạn mã quan trọng thể hiện việc đóng gói chuẩn hóa chống rò rỉ dữ liệu trong kiểm định chéo của K-NN và thiết lập tiêu chí tối ưu F1-score:
 
-\section{Kết quả thực nghiệm}
-Hùng tổng hợp bốn kết quả: Decision Tree trên Luồng A/B và K-NN trên Luồng A/B sau khi đánh giá trên cùng tập Test gồm 1.409 mẫu.
+\begin{lstlisting}[language=Python,basicstyle=\ttfamily\footnotesize,frame=single,keywordstyle=\color{blue}]
+# Đóng gói Pipeline chuẩn hóa độc lập trong từng fold kiểm định chéo
+estimator_B = Pipeline([
+    ("scaler", StandardScaler()),
+    ("knn", KNeighborsClassifier()),
+])
+
+search = GridSearchCV(
+    estimator=estimator_B,
+    param_grid={
+        "knn__n_neighbors": [3, 5, 7, 9, 11, 15, 21, 31, 41, 51],
+        "knn__weights": ["uniform", "distance"],
+        "knn__metric": ["euclidean", "manhattan"],
+    },
+    scoring=make_scorer(f1_score, pos_label="Yes"),
+    cv=StratifiedKFold(n_splits=5, shuffle=True, random_state=42),
+    n_jobs=-1,
+    refit=True,
+)
+search.fit(X_train_B, y_train)
+\end{lstlisting}
+
+\section{Thử nghiệm và kết quả}
+
+\subsection{Thiết lập thí nghiệm và tiêu chí đánh giá}
+Toàn bộ quá trình tìm kiếm siêu tham số được thực hiện qua kỹ thuật kiểm định chéo 5-fold phân tầng (\texttt{StratifiedKFold}, $k=5$) chỉ trên tập Train ($5.634$ mẫu). Tiêu chí lựa chọn cấu hình mô hình tốt nhất là chỉ số \textbf{F1-score của lớp Churn = Yes}. Sau khi xác định được siêu tham số tối ưu, mô hình được huấn luyện lại trên toàn bộ tập Train và tiến hành đánh giá kiểm thử duy nhất một lần trên tập Test độc lập gồm $1.409$ mẫu.
+
+\subsection{Phương án Baseline làm mốc đối sánh}
+Theo đúng yêu cầu của hướng dẫn bài tập lớn, nhóm thiết lập mô hình \textbf{Baseline} là \textbf{Decision Tree mặc định trên Luồng A} (\texttt{criterion='gini'}, không giới hạn độ sâu \texttt{max\_depth=None}, không cân bằng trọng số \texttt{class\_weight=None}). Kết quả của Baseline đạt:
+\begin{itemize}
+    \item Accuracy: $0.7289$
+    \item Precision: $0.4896$
+    \item Recall: $0.5053$
+    \item F1-score: $0.4974$
+\end{itemize}
+Bên cạnh đó, nhóm cũng kiểm chứng thêm mô hình ngây thơ (\textit{Dummy Classifier - Most Frequent}): luôn đoán lớp đa số (\texttt{No}), đạt Accuracy $0.7346$ nhưng Precision, Recall và F1-score đều bằng $0.0000$. Điều này làm nổi bật ý nghĩa của việc sử dụng Decision Tree và K-NN có tinh chỉnh.
+
+\subsection{Bảng tổng hợp kết quả thực nghiệm}
+Bảng~\ref{tab:model-comparison} trình bày kết quả đánh giá đối sánh toàn diện giữa mô hình Baseline và 4 cấu hình tối ưu của nhóm trên cùng một tập Test chuẩn gồm $1.409$ khách hàng:
 
 \begin{table}[H]
 \centering
 \small
-\begin{tabular}{llcccc}
+\begin{tabular}{llccccc}
 \toprule
-Mô hình & Luồng & Accuracy & Precision & Recall & F1-score \\
+Mô hình & Luồng & Tham số tối ưu & Accuracy & Precision & Recall & F1-score \\
 \midrule
-Decision Tree & A & 0.7488 & 0.5175 & \textbf{0.7914} & \textbf{0.6258} \\
-Decision Tree & B & 0.7346 & 0.5000 & \textbf{0.7995} & 0.6152 \\
-K-NN          & A & 0.7864 & 0.5968 & 0.6016 & 0.5992 \\
-K-NN          & B & \textbf{0.7906} & \textbf{0.6238} & 0.5321 & 0.5743 \\
+\textbf{Baseline (Mặc định)} & Luồng A & Default (depth=$\infty$, unweighted) & 0.7289 & 0.4896 & 0.5053 & 0.4974 \\
+\textbf{Decision Tree} & Luồng A & depth=5, leaf=75, balanced & 0.7488 & 0.5175 & \textbf{0.7914} & \textbf{0.6258} \\
+\textbf{Decision Tree} & Luồng B & depth=4, leaf=30, balanced & 0.7346 & 0.5000 & \textbf{0.7995} & 0.6152 \\
+\textbf{K-NN}          & Luồng A & $k=41$, manhattan, uniform & 0.7864 & 0.5968 & 0.6016 & 0.5992 \\
+\textbf{K-NN}          & Luồng B & $k=51$, euclidean, uniform & \textbf{0.7906} & \textbf{0.6238} & 0.5321 & 0.5743 \\
 \bottomrule
 \end{tabular}
-\caption{Bảng so sánh chéo bốn kết quả mô hình trên tập Test chung.}
+\caption{Bảng so sánh kết quả thực nghiệm giữa Baseline và 4 mô hình trên tập Test chung.}
 \label{tab:model-comparison}
 \end{table}
 
-\subsection{Ma trận nhầm lẫn}
-Hình~\ref{fig:dt-cm} và Hình~\ref{fig:knn-cm} thể hiện ma trận nhầm lẫn của Decision Tree và K-NN trên cả hai luồng đặc trưng.
+\subsection{Trực quan hóa ma trận nhầm lẫn và cấu trúc mô hình}
+Hình~\ref{fig:dt-cm} và Hình~\ref{fig:knn-cm} thể hiện ma trận nhầm lẫn của Decision Tree và K-NN trên cả hai luồng xử lý dữ liệu.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.85\textwidth]{figures/dt_confusion_matrix.png}
+\includegraphics[width=0.88\textwidth]{figures/dt_confusion_matrix.png}
 \caption{Ma trận nhầm lẫn của Decision Tree trên Luồng A và Luồng B.}
 \label{fig:dt-cm}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.85\textwidth]{figures/knn_confusion_matrix.png}
+\includegraphics[width=0.88\textwidth]{figures/knn_confusion_matrix.png}
 \caption{Ma trận nhầm lẫn của K-NN trên Luồng A và Luồng B.}
 \label{fig:knn-cm}
 \end{figure}
 
-\section{Phân tích lỗi (Error Analysis)}
-Dựa trên mô hình có F1-score tốt nhất là Decision Tree Luồng A (bắt được 296/374 khách hàng rời mạng, $F_1 = 0.6258$) và mô hình K-NN Luồng A ($F_1 = 0.5992$), nhóm tiến hành phân tích các trường hợp dự đoán sai trên tập Test chung:
+Hình~\ref{fig:dt-feat} minh họa 10 đặc trưng có trọng số quan trọng cao nhất trong mô hình Decision Tree của hai luồng, cho thấy \texttt{ContractLength}, \texttt{tenure}, \texttt{InternetService\_Fiber optic} và đặc trưng tương tác \texttt{MonthToMonth\_Fiber} đóng vai trò chủ chốt trong việc phân loại.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.92\textwidth]{figures/dt_feature_importance.png}
+\caption{Top 10 đặc trưng quan trọng nhất của Decision Tree trên Luồng A và Luồng B.}
+\label{fig:dt-feat}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.98\textwidth]{figures/dt_tree_B.png}
+\caption{Trực quan hóa 3 tầng quyết định đầu tiên của Decision Tree trên Luồng B.}
+\label{fig:dt-tree}
+\end{figure}
+
+\section{Thảo luận và so sánh}
+
+\subsection{So sánh với mô hình Baseline}
+So với mô hình Baseline (Decision Tree chưa tinh chỉnh có F1-score chỉ đạt $0.4974$ và Recall chỉ $0.5053$), mô hình Decision Tree Luồng A sau khi tối ưu siêu tham số và áp dụng cân bằng trọng số (\texttt{class\_weight="balanced"}) đã ghi nhận bước nhảy vọt:
+\begin{itemize}
+    \item Chỉ số \textbf{Recall tăng từ $50.53\%$ lên $79.14\%$} (tăng tuyệt đối $+28.61\%$). Điều này đồng nghĩa với việc mô hình cải tiến giúp doanh nghiệp bắt thêm được gần $30\%$ lượng khách hàng sắp rời mạng mà mô hình ban đầu đã bỏ sót.
+    \item Chỉ số \textbf{F1-score tăng từ $0.4974$ lên $0.6258$} (tăng tuyệt đối $+12.84\%$).
+\end{itemize}
+Kết quả này minh chứng rõ nét rằng việc kiểm soát độ sâu cắt tỉa cành (\texttt{max\_depth = 5}) đã chặn đứng hoàn toàn hiện tượng quá khớp ở cây quyết định, trong khi cơ chế bù trừ trọng số nghịch đảo đóng vai trò quyết định trong việc giải quyết bài toán mất cân bằng lớp.
+
+\subsection{So sánh thuật toán Decision Tree và K-NN}
+\begin{enumerate}
+    \item \textbf{Về mặt chỉ số định lượng:} K-NN đạt Accuracy cao hơn ($\approx 79.1\%$) và Precision cao hơn ($\approx 62.4\%$), tuy nhiên chỉ số Recall của K-NN lại rất khiêm tốn ($53.2\% - 60.2\%$). K-NN bỏ sót tới $149 - 175$ khách hàng rời mạng trên tập Test. Ngược lại, Decision Tree đạt Recall vượt trội ($79.1\% - 80.0\%$), chỉ bỏ sót $75 - 78$ khách hàng.
+    \item \textbf{Bản chất thuật toán lý giải kết quả:} K-NN ra quyết định dựa trên khoảng cách hình học tới $k$ láng giềng gần nhất. Do tập dữ liệu có tỷ lệ $73.4\%$ khách hàng không rời mạng, không gian xung quanh các mẫu kiểm thử thường có mật độ áp đảo của lớp đa số (\texttt{No}). Điều này khiến ranh giới quyết định của K-NN bị kéo lệch về phía lớp \texttt{No}. Ngược lại, Decision Tree chia không gian mẫu bằng các mặt phẳng trực giao song song với các trục tọa độ, kết hợp với trọng số lớp nhân tạo \texttt{class\_weight="balanced"}, nên dễ dàng tạo ra các vùng lá phát hiện lớp \texttt{Yes} hơn.
+    \item \textbf{Ý nghĩa trong bối cảnh nghiệp vụ viễn thông:} Trong bài toán giữ chân khách hàng, \textbf{chi phí của lỗi False Negative (bỏ sót khách rời mạng) lớn hơn rất nhiều so với lỗi False Positive (chăm sóc nhầm khách ở lại)}. Khi bỏ sót một khách hàng rời mạng, nhà mạng mất toàn bộ doanh thu tích lũy trong tương lai (Customer Lifetime Value) và mất thêm chi phí marketing lớn để bù đắp. Ngược lại, nếu gửi nhầm thông điệp tri ân/ưu đãi cho khách hàng trung thành, chi phí phát sinh chỉ là một khoản chiết khấu nhỏ. Vì vậy, \textbf{Decision Tree là mô hình có giá trị ứng dụng thực tiễn cao hơn hẳn so với K-NN}.
+\end{enumerate}
+
+\subsection{So sánh giữa Luồng A và Luồng B}
+\begin{itemize}
+    \item \textbf{Luồng A (45 đặc trưng):} Đạt F1-score cao nhất ở cả Decision Tree ($0.6258$) và K-NN ($0.5992$). One-Hot Encoding giúp mô hình không bỏ sót bất kỳ mối liên hệ danh mục ngách nào trong dữ liệu.
+    \item \textbf{Luồng B (17 đặc trưng):} Mặc dù giảm tới hơn $62\%$ số chiều dữ liệu, Luồng B vẫn duy trì năng lực phân loại tương đương (Decision Tree Luồng B đạt Recall cao nhất nhóm lên tới $79.95\%$). Việc tổng hợp các biến bảo vệ thành \texttt{MissingProtectionCount} và tạo đặc trưng tương tác \texttt{MonthToMonth\_Fiber} đã giúp cây quyết định rẽ nhánh rất sớm ngay tại các tầng đầu tiên (Hình~\ref{fig:dt-tree}), đem lại tốc độ xử lý nhanh và độ tường minh giải thích cực kỳ thuyết phục.
+\end{itemize}
+
+\subsection{Phân tích lỗi (Error Analysis)}
+Nhóm đã tiến hành mổ xẻ chi tiết $1.409$ dự đoán trên tập Test chung của mô hình tối ưu nhất (Decision Tree Luồng A, bắt đúng $296/374$ khách hàng rời mạng) và trích xuất $30$ ca lỗi tiêu biểu (\texttt{results/error\_cases\_sample.csv}):
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.95\textwidth]{figures/error_analysis_decision_tree.png}
-\caption{Phân tích phân bố các nhóm dự đoán của Decision Tree Luồng A.}
+\caption{Phân tích phân bố thâm niên, cước phí và loại hợp đồng theo 4 nhóm dự đoán của Decision Tree Luồng A.}
 \label{fig:error-dt}
 \end{figure}
 
-\begin{itemize}
-    \item \textbf{False Negatives (Bỏ sót khách Churn - Nguy hiểm nhất):}
-    Decision Tree chỉ bỏ sót 78 khách hàng (5.5\% tập Test), trong khi K-NN bỏ sót tới 149 khách hàng (10.6\%). Khảo sát sâu nhóm khách hàng FN cho thấy thời gian gắn bó trung bình của họ cao hơn hẳn nhóm Churn thông thường (31.7 tháng so với 12.4 tháng của nhóm TP), và có tới hơn 52\% khách hàng FN sở hữu hợp đồng dài hạn (1 năm hoặc 2 năm). Do mô hình học được quy luật thống kê chung là ``khách hàng hợp đồng dài hạn và thâm niên lâu có xác suất rời mạng thấp'', nên mô hình có xu hướng phân loại nhầm nhóm này thành Ở lại. Về mặt kinh doanh, nhóm nghiên cứu đặt giả thuyết rằng các ca rời mạng này có thể xuất phát từ các yếu tố ngoại cảnh chưa được số hóa trong tập dữ liệu (ví dụ: thay đổi địa điểm sinh sống, sự cố gián đoạn dịch vụ cục bộ, hoặc các yếu tố cá nhân ngoài các trường thông tin hợp đồng hiện có).
-    
-    \item \textbf{False Positives (Nhầm khách ở lại thành Churn):}
-    Decision Tree có 276 trường hợp FP (19.6\%), K-NN có 152 trường hợp FP (10.8\%). Khảo sát cho thấy hơn 97\% khách hàng FP sử dụng loại hợp đồng từng tháng (\texttt{Month-to-month}) và có mức cước phí hàng tháng khá cao ($\approx 70.8\$$/tháng). Vì hồ sơ sử dụng của họ mang đầy đủ đặc trưng định lượng của nhóm rủi ro cao, mô hình dự đoán họ sẽ Churn, nhưng trên thực tế họ vẫn chọn tiếp tục sử dụng. Nhóm này là đối tượng phù hợp để nhà mạng triển khai các chính sách chăm sóc, tri ân giảm cước nhằm chuyển hóa sang hợp đồng dài hạn.
-\end{itemize}
-
-\section{Thảo luận}
-Từ bảng so sánh thực nghiệm và phân tích lỗi, nhóm rút ra các nhận định then chốt:
 \begin{enumerate}
-    \item \textbf{So sánh giữa Decision Tree và K-NN:}
+    \item \textbf{Nhóm False Negatives (FN - Bỏ sót Churn, 78 khách hàng, chiếm 5.5\%):}
     \begin{itemize}
-        \item K-NN đạt Accuracy tổng thể cao hơn ($\approx 79.1\%$) và Precision cao hơn ($\approx 62.4\%$), tuy nhiên Recall của lớp Churn chỉ đạt $53.2\% - 60.2\%$, tức là bỏ sót tới gần một nửa lượng khách hàng sắp rời mạng. Điều này là do K-NN đưa ra quyết định dựa trên số đông $k$ láng giềng gần nhất, mà trong tập dữ liệu Churn chỉ chiếm $26.5\%$, khiến ranh giới quyết định của K-NN có xu hướng thiên vị lớp đa số (\texttt{No}).
-        \item Ngược lại, Decision Tree với kỹ thuật cân bằng trọng số (\texttt{class\_weight="balanced"}) đã ưu tiên phát hiện lớp thiểu số, đạt Recall vượt trội lên tới $79.1\% - 80.0\%$, bắt được gần $80\%$ khách hàng rời bỏ. Trong bài toán kinh doanh viễn thông, chi phí bỏ sót một khách hàng rời mạng (chi phí mất doanh thu dài hạn) lớn hơn nhiều so với chi phí gửi chương trình khuyến mãi nhầm cho khách hàng ở lại. Vì vậy, Decision Tree là mô hình có giá trị ứng dụng thực tiễn cao hơn.
+        \item Khảo sát định lượng: Nhóm khách hàng này có thời gian sử dụng dịch vụ trung bình lên tới $31.7$ tháng (cao hơn hẳn mức $12.4$ tháng của nhóm Churn thông thường TP). Đặc biệt, có tới $52.6\%$ khách hàng trong nhóm này ký hợp đồng dài hạn (1 năm hoặc 2 năm) và có cước phí tháng ở mức trung bình ($61.2\$$).
+        \item Nguyên nhân kỹ thuật \& giả thuyết nghiệp vụ: Mô hình học được quy luật thống kê vững chắc rằng ``khách hàng thâm niên lâu và có hợp đồng dài hạn thì xác suất Churn rất thấp''. Do đó, mô hình tự tin dự đoán nhóm này ở lại. Tuy nhiên, họ vẫn rời mạng trên thực tế. Nhóm nghiên cứu nhận định rằng nguyên nhân rời mạng của nhóm này bắt nguồn từ các biến cố ngoại cảnh không nằm trong bộ dữ liệu, ví dụ: khách hàng thay đổi nơi cư trú ra ngoài vùng phủ sóng, gặp sự cố gián đoạn mạng nghiêm trọng kéo dài, hoặc các vấn đề cá nhân phát sinh đột ngột.
     \end{itemize}
-
-    \item \textbf{So sánh giữa Luồng A và Luồng B:}
+    \item \textbf{Nhóm False Positives (FP - Nhầm thành Churn, 276 khách hàng, chiếm 19.6\%):}
     \begin{itemize}
-        \item \textbf{Luồng A (45 đặc trưng):} Giữ lại toàn bộ thông tin chi tiết qua One-Hot Encoding, giúp Decision Tree đạt F1-score cao nhất ($0.6258$) và K-NN đạt F1-score $0.5992$.
-        \item \textbf{Luồng B (17 đặc trưng):} Tinh gọn dữ liệu dựa trên hiểu biết nghiệp vụ (đặc trưng tương tác \texttt{MonthToMonth\_Fiber}, số dịch vụ bảo vệ còn thiếu \texttt{MissingProtectionCount}). Luồng B giúp giảm hơn $60\%$ số lượng chiều không gian nhưng vẫn duy trì độ chính xác và Recall tương đương (Recall Decision Tree Luồng B đạt tới $79.95\%$), mang lại tốc độ suy luận nhanh và khả năng giải thích trực quan cao hơn.
+        \item Khảo sát định lượng: Có tới hơn $97.1\%$ khách hàng nhóm này sử dụng hợp đồng từng tháng (\texttt{Month-to-month}) và mức cước trung bình tháng rất cao ($\approx 70.8\$$).
+        \item Nguyên nhân: Do mang đầy đủ các đặc trưng định lượng điển hình của nhóm rủi ro cao nhất, mô hình xếp họ vào nhóm Churn. Tuy nhiên, họ vẫn đang tiếp tục sử dụng dịch vụ. Đây chính là nhóm khách hàng tiềm năng vàng mà bộ phận CSKH cần tập trung gọi điện tư vấn, chuyển đổi sang hợp đồng dài hạn có chiết khấu để khóa chặt nguy cơ rời mạng.
     \end{itemize}
 \end{enumerate}
 
-\section{Tổng kết}
-Đề tài xây dựng một quy trình thống nhất từ chia dữ liệu, tiền xử lý, huấn luyện đến đánh giá mô hình. Bốn kết quả được kiểm tra trên cùng tập Test để đảm bảo việc so sánh công bằng. Phần tổng kết cuối cùng sẽ được cập nhật sau khi nhóm hoàn thành thực nghiệm và phân tích lỗi.
+\subsection{Hạn chế của dữ liệu và giải pháp hiện tại}
+\begin{itemize}
+    \item \textbf{Hạn chế dữ liệu:} Bộ dữ liệu Telco mang tính chất lát cắt thời gian tĩnh (cross-sectional snapshot), thiếu hoàn toàn thông tin chuỗi thời gian về hành vi (như lưu lượng thoại/data thay đổi theo từng tuần, lịch sử thanh toán trễ hạn, số lần liên hệ tổng đài khiếu nại trong 90 ngày gần nhất). Điều này lý giải tại sao mô hình gặp khó khăn trong việc giải thích nhóm lỗi FN.
+    \item \textbf{Hạn chế giải pháp:} Mặc dù Decision Tree bắt được gần $80\%$ lượng khách hàng rời bỏ, số ca đoán nhầm FP vẫn còn khá lớn ($276$ ca), có thể làm phát sinh chi phí ưu đãi chăm sóc nếu doanh nghiệp áp dụng chương trình khuyến mãi dàn trải.
+\end{itemize}
+
+\section{Tổng kết và hướng phát triển}
+
+\subsection{Tóm tắt kết quả chính}
+Qua quá trình triển khai nghiêm túc, đề tài đã hoàn thành xuất sắc các mục tiêu đề ra:
+\begin{enumerate}
+    \item Xây dựng hoàn chỉnh một pipeline học máy có thể tái tạo 100\%, tuân thủ nghiêm ngặt nguyên tắc ngăn ngừa rò rỉ dữ liệu.
+    \item Thiết kế và đối sánh thực nghiệm thành công hai luồng tiền xử lý (Luồng A 45 đặc trưng vs Luồng B 17 đặc trưng) và hai thuật toán (Decision Tree vs K-NN) trên cùng một tập Test chuẩn.
+    \item Xác định mô hình tối ưu đề xuất là \textbf{Decision Tree (Luồng A)}, đạt F1-score $= 0.6258$ và Recall $= 0.7914$, vượt trội so với mô hình Baseline ban đầu (F1 $= 0.4974$, Recall $= 0.5053$).
+    \item Triển khai thành công ứng dụng giao diện web demo tương tác bằng \textbf{Streamlit} (\texttt{app.py}), cho phép người dùng nhập trực quan 19 thuộc tính khách hàng, tính toán xác suất rủi ro và đưa ra khuyến nghị hành động CSKH tự động.
+\end{enumerate}
+
+\subsection{Hướng cải tiến và phát triển}
+Nếu có thêm thời gian, dữ liệu và tài nguyên tính toán, nhóm đề xuất các hướng phát triển tiếp theo:
+\begin{itemize}
+    \item \textbf{Ứng dụng mô hình tổ hợp (Ensemble Learning):} Thử nghiệm các thuật toán Random Forest, Extra Trees, XGBoost hoặc LightGBM để giảm thiểu phương sai và hạn chế số lượng ca đoán nhầm FP.
+    \item \textbf{Bổ sung đặc trưng động:} Thu thập thêm dữ liệu nhật ký cuộc gọi (CDR), biến động cước 3 tháng gần nhất và chỉ số hài lòng khách hàng (CSAT/NPS).
+    \item \textbf{Tối ưu hóa ngưỡng phân loại (Threshold Tuning):} Thay vì sử dụng ngưỡng mặc định $0.5$, tiến hành tối ưu hóa ngưỡng dựa trên hàm ma trận tổn thất kinh tế cụ thể của doanh nghiệp viễn thông.
+\end{itemize}
+
+\section*{Phụ lục: Khai báo sử dụng công cụ AI}
+Tuân thủ quy định về liêm chính học thuật tại Mục 2.3 của Hướng dẫn thực hiện bài tập lớn, nhóm khai báo minh bạch việc sử dụng công cụ trợ lý AI (như Google Gemini, ChatGPT):
+\begin{itemize}
+    \item \textbf{Phạm vi sử dụng:} AI được sử dụng nhằm hỗ trợ tra cứu cú pháp thư viện, gợi ý cấu trúc biên soạn tài liệu \LaTeX, hỗ trợ rà soát kiểm thử đơn vị tự động trong thư mục \texttt{tests/}, và tư vấn hoàn thiện giao diện CSS cho ứng dụng demo Streamlit.
+    \item \textbf{Cam kết của nhóm:} Toàn bộ dữ liệu, phân tích EDA, thiết kế đặc trưng Luồng B, mã nguồn huấn luyện và biện luận kết quả chuyên môn đều do các thành viên trong nhóm trực tiếp xây dựng, kiểm thử và làm chủ. Toàn bộ thành viên có khả năng giải trình và bảo vệ độc lập mọi phần việc đã thực hiện trước hội đồng đánh giá.
+\end{itemize}
 
 \end{document}

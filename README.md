@@ -11,22 +11,20 @@
 ## 2. Cấu trúc dự án
 
 ```text
-Code/
-├── data/                       # Dữ liệu do Mạnh chuẩn bị
-├── notebooks/
-│   └── tong_hop_ket_qua.ipynb # Notebook tổng hợp của Hùng
-├── results/                    # 4 file kết quả JSON của Đức/Hải
-│   ├── README.md
-│   └── result_template.json
-├── src/
-│   ├── __init__.py
-│   ├── config.py               # random_state=42 và cấu hình chung
-│   ├── split_data.py           # Hàm chia dữ liệu chuẩn
-│   ├── evaluate.py             # Accuracy/Precision/Recall/F1/CM
-│   └── aggregate_results.py    # Tổng hợp 4 kết quả
+BTL_Nhap_Mon_Hoc_May_NHOM4/
+├── app.py                      # Giao diện Web Demo Streamlit (Điểm thưởng GUI)
+├── data/                       # Dữ liệu raw và processed
+├── models/                     # preprocessor_A.pkl, decision_tree_A/B, knn_A/B
+├── notebooks/                  # 7 Notebooks phân tích chi tiết của 4 thành viên
+├── results/                    # 4 file JSON kết quả + 30 mẫu ca lỗi
 ├── report/
-│   ├── main.tex
-│   └── model_comparison.csv
+│   ├── main.tex                # Báo cáo học thuật LaTeX chuẩn 6 mục
+│   ├── main.pdf                # Bản PDF hoàn chỉnh xuất từ báo cáo
+│   ├── model_comparison.csv    # Bảng tổng hợp đối sánh kết quả
+│   └── figures/                # Biểu đồ ma trận nhầm lẫn, phân tích lỗi, cây
+├── src/                        # Mã nguồn logic tái sử dụng
+├── tests/                      # Bộ kiểm thử đơn vị tự động (7 unit tests)
+├── AI_USAGE.md                 # Khai báo minh bạch việc sử dụng công cụ AI
 ├── requirements.txt
 └── README.md
 ```
@@ -98,16 +96,34 @@ notebooks/tong_hop_ket_qua.ipynb
 
 để kiểm tra bảng, sắp xếp và trực quan hóa kết quả.
 
-## 6. Lưu ý đánh giá
+## 6. Phương án Baseline & Đánh giá
 
-Với bài toán Churn, không chỉ nhìn Accuracy. Báo cáo cần chú ý Recall và F1-score của lớp khách hàng rời bỏ (`Churn = Yes`) để tránh kết luận sai khi dữ liệu mất cân bằng.
+- **Mô hình Baseline:** Decision Tree mặc định trên Luồng A (`depth=None`, không cân bằng trọng số) đạt `F1 = 0.4974`, `Recall = 0.5053`.
+- **Mô hình tối ưu đề xuất:** Decision Tree Luồng A (`max_depth=5`, `class_weight="balanced"`) đạt `F1 = 0.6258`, `Recall = 0.7914` (bắt được gần 80% khách hàng có nguy cơ rời mạng).
+- Với bài toán Churn, không chỉ nhìn Accuracy. Báo cáo tập trung vào Recall và F1-score của lớp khách hàng rời bỏ (`Churn = Yes`) để tránh kết luận sai khi dữ liệu mất cân bằng.
 
-## 7. Báo cáo
+## 7. Chạy Ứng dụng Demo Streamlit (Điểm thưởng)
 
-File LaTeX chính:
+Chạy ứng dụng giao diện web demo trực quan từ thư mục gốc dự án:
 
-```text
-report/main.tex
+```bash
+streamlit run app.py
 ```
 
-Hùng ghép nội dung EDA của Mạnh, thuật toán/kết quả của Đức và Hải, Error Analysis của Hải, rồi hoàn thiện phần thiết kế giải pháp, bảng so sánh, thảo luận và tổng kết.
+Ứng dụng hỗ trợ:
+- Nhập trực quan 19 trường thông tin khách hàng, có sẵn các mẫu hồ sơ nhanh (Preset).
+- Chọn 1 trong 4 mô hình để suy luận và tính xác suất rời mạng (Churn Probability).
+- Đưa ra các khuyến nghị hành động thiết thực cho bộ phận CSKH.
+- Xem phân tích lỗi (Error Analysis) và tra cứu 30 ca lỗi tiêu biểu trên tập Test.
+
+## 8. Chạy Kiểm thử Đơn vị (Unit Tests)
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+## 9. Báo cáo & Khai báo AI
+
+- **Báo cáo LaTeX chính:** `report/main.tex` (chuẩn cấu trúc 6 mục của học phần).
+- **Bản PDF xuất hoàn chỉnh:** `report/main.pdf`.
+- **Khai báo sử dụng công cụ AI:** `AI_USAGE.md` (minh bạch theo Mục 2.3).

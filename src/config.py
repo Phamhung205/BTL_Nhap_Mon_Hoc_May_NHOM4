@@ -9,6 +9,10 @@ TEST_SIZE = 0.20
 TARGET_COLUMN = "Churn"
 POSITIVE_LABEL = "Yes"
 
+# Phương án Baseline làm mốc đối sánh: Decision Tree mặc định trên Luồng A (chưa tinh chỉnh, class_weight=None)
+BASELINE_MODEL_ID = "baseline_decision_tree_A_default"
+BASELINE_DESCRIPTION = "Decision Tree mặc định trên Luồng A (depth=None, unweighted)"
+
 # Bốn kết quả Hùng cần thu thập để so sánh chéo.
 EXPECTED_RESULT_IDS = (
     "decision_tree_A",
