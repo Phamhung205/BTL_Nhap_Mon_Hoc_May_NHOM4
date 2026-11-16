@@ -4,10 +4,10 @@
 **Năm học:** 2026–2027  
 **Đề tài 9:** Dự đoán khách hàng rời bỏ dịch vụ viễn thông (Telco Customer Churn)  
 **Nhóm sinh viên thực hiện (Nhóm 4):**
-- Nguyễn Văn Hùng (Trưởng nhóm)
+- Phạm Ngọc Hùng (Trưởng nhóm)
 - Bùi Đình Mạnh
-- Trần Minh Đức
-- Lê Hoàng Hải
+- Phạm Thế Đức
+- La Văn Hải
 
 ---
 
