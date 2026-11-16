@@ -1,6 +1,6 @@
 ---
 title: "BÁO CÁO BÀI TẬP LỚN"
-subtitle: "HỌC PHẦN: FIT4013 -- NHẬP MÔN HỌC MÁY\n\nĐỀ TÀI 9: DỰ ĐOÁN KHÁCH HÀNG RỜI BỎ DỊCH VỤ VIỄN THÔNG (TELCO CUSTOMER CHURN PREDICTION)\n\nGIẢNG VIÊN HƯỚNG DẪN: ThS. Lê Thị Thùy Trang"
+subtitle: "HỌC PHẦN: FIT4013 -- NHẬP MÔN HỌC MÁY\n\nĐỀ TÀI 9: DỰ ĐOÁN KHÁCH HÀNG RỜI BỎ DỊCH VỤ VIỄN THÔNG (TELCO CUSTOMER CHURN PREDICTION)\n\nGIẢNG VIÊN HƯỚNG DẪN: Lê Thị Thùy Trang"
 author:
   - "Phạm Ngọc Hùng (Nhóm trưởng) -- MSV: 1871020265"
   - "Bùi Đình Mạnh -- MSV: 1871020379"
@@ -27,7 +27,7 @@ Phạm Ngọc Hùng -- Bùi Đình Mạnh -- Phạm Thế Đức -- La Văn Hả
 
 Chúng em xin gửi lời cảm ơn chân thành và sâu sắc nhất tới Ban Giám hiệu **Trường Đại học Đại Nam**, Ban Chủ nhiệm Khoa Công nghệ thông tin cùng toàn thể quý thầy cô giáo đã tận tâm truyền đạt những nền tảng kiến thức quý báu và tạo mọi điều kiện học tập thuận lợi nhất cho chúng em trong suốt quá trình theo học học phần **FIT4013 -- Nhập môn Học Máy**.
 
-Chúng em xin đặc biệt bày tỏ lòng biết ơn chân thành tới Giảng viên hướng dẫn học phần -- ThS. Lê Thị Thùy Trang đã tận tình giảng dạy, định hướng phương pháp luận nghiên cứu khoa học, tận tình giải đáp các vướng mắc chuyên môn và đóng góp những ý kiến vô cùng xác đáng giúp nhóm hoàn thiện đề tài bài tập lớn một cách chỉn chu và đúng chuẩn mực học thuật.
+Chúng em xin đặc biệt bày tỏ lòng biết ơn chân thành tới Giảng viên hướng dẫn học phần -- Lê Thị Thùy Trang đã tận tình giảng dạy, định hướng phương pháp luận nghiên cứu khoa học, tận tình giải đáp các vướng mắc chuyên môn và đóng góp những ý kiến vô cùng xác đáng giúp nhóm hoàn thiện đề tài bài tập lớn một cách chỉn chu và đúng chuẩn mực học thuật.
 
 Mặc dù các thành viên trong nhóm đã dành nhiều tâm huyết và nỗ lực tối đa để hoàn thiện sản phẩm và báo cáo, song do kiến thức và kinh nghiệm thực tiễn còn đang trong giai đoạn tích lũy, bài làm khó tránh khỏi những điểm hạn chế nhất định. Nhóm kính mong nhận được những ý kiến nhận xét, góp ý quý báu của quý thầy cô để sản phẩm và năng lực chuyên môn của chúng em ngày một hoàn thiện hơn.
 
