@@ -21,7 +21,6 @@ BTL_Nhap_Mon_Hoc_May_NHOM4/
 ├── notebooks/                  # 7 Notebooks phân tích chi tiết của 4 thành viên
 ├── results/                    # 4 file JSON kết quả + 30 mẫu ca lỗi
 ├── report/
-│   ├── Bao_Cao_BTL_Nhom4_DeTai9.docx # Báo cáo hoàn chỉnh định dạng Word (mẫu ĐH Đại Nam)
 │   ├── main.pdf                # Báo cáo hoàn chỉnh định dạng PDF vector chuẩn A4
 │   ├── main.tex                # Báo cáo học thuật LaTeX chuẩn 6 mục
 │   ├── report.html             # Bản HTML giao diện học thuật đồng bộ

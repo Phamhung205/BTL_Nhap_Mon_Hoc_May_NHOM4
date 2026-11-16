@@ -29,3 +29,7 @@ env/
 *.out
 *.toc
 *.synctex.gz
+
+# Microsoft Word
+*.docx
+*.doc
