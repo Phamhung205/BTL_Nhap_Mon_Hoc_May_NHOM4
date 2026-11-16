@@ -2,11 +2,14 @@
 
 ## 1. Thông tin nhóm
 
-- Học phần: Nhập môn Học Máy
-- Hùng (Đội trưởng): Quản lý dự án, tổng hợp đánh giá, báo cáo LaTeX
-- Mạnh: EDA, chia Train/Test, tiền xử lý Luồng A
-- Đức: Feature Engineering Luồng B, Decision Tree trên Luồng A/B
-- Hải: K-NN trên Luồng A/B, Error Analysis, giao diện demo
+- Trường: **Đại học Đại Nam** -- Khoa Công nghệ thông tin
+- Học phần: **FIT4013 -- Nhập môn Học Máy**
+- Đề tài 9: **Dự đoán khách hàng rời bỏ dịch vụ viễn thông (Telco Customer Churn Prediction)**
+- Thành viên Nhóm 4:
+  - **Phạm Ngọc Hùng (Nhóm trưởng)** -- MSV: 1871020265: Quản lý dự án, tổng hợp đánh giá, báo cáo LaTeX/Word
+  - **Bùi Đình Mạnh** -- MSV: 1871020379: Khám phá EDA, chia Train/Test, tiền xử lý Luồng A
+  - **Phạm Thế Đức** -- MSV: 1871020147: Kỹ thuật đặc trưng Luồng B, Decision Tree trên Luồng A/B
+  - **La Văn Hải** -- MSV: 1871020215: K-NN trên Luồng A/B, Error Analysis, giao diện demo Streamlit
 
 ## 2. Cấu trúc dự án
 
@@ -18,10 +21,12 @@ BTL_Nhap_Mon_Hoc_May_NHOM4/
 ├── notebooks/                  # 7 Notebooks phân tích chi tiết của 4 thành viên
 ├── results/                    # 4 file JSON kết quả + 30 mẫu ca lỗi
 ├── report/
+│   ├── Bao_Cao_BTL_Nhom4_DeTai9.docx # Báo cáo hoàn chỉnh định dạng Word (mẫu ĐH Đại Nam)
+│   ├── main.pdf                # Báo cáo hoàn chỉnh định dạng PDF vector chuẩn A4
 │   ├── main.tex                # Báo cáo học thuật LaTeX chuẩn 6 mục
-│   ├── main.pdf                # Bản PDF hoàn chỉnh xuất từ báo cáo
+│   ├── report.html             # Bản HTML giao diện học thuật đồng bộ
 │   ├── model_comparison.csv    # Bảng tổng hợp đối sánh kết quả
-│   └── figures/                # Biểu đồ ma trận nhầm lẫn, phân tích lỗi, cây
+│   └── figures/                # Logo ĐH Đại Nam, ma trận nhầm lẫn, phân tích lỗi, cây
 ├── src/                        # Mã nguồn logic tái sử dụng
 ├── tests/                      # Bộ kiểm thử đơn vị tự động (7 unit tests)
 ├── AI_USAGE.md                 # Khai báo minh bạch việc sử dụng công cụ AI
