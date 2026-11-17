@@ -129,7 +129,7 @@ notebooks/tong_hop_ket_qua.ipynb
 ## 6. Phương án Baseline & Đánh giá
 
 - **Mô hình Baseline:** Decision Tree mặc định trên Luồng A (`depth=None`, không cân bằng trọng số) đạt `F1 = 0.4974`, `Recall = 0.5053`.
-- **Mô hình tối ưu đề xuất:** Decision Tree Luồng A (`max_depth=5`, `class_weight="balanced"`) đạt `F1 = 0.6258`, `Recall = 0.7914` (bắt được gần 80% khách hàng có nguy cơ rời mạng).
+- **Mô hình tối ưu đề xuất:** Decision Tree Luồng A (`criterion="gini"`, `max_depth=8`, `min_samples_leaf=50`, `class_weight="balanced"`) đạt `F1 = 0.6258`, `Recall = 0.7914` (bắt được gần 80% khách hàng có nguy cơ rời mạng).
 - Với bài toán Churn, không chỉ nhìn Accuracy. Báo cáo tập trung vào Recall và F1-score của lớp khách hàng rời bỏ (`Churn = Yes`) để tránh kết luận sai khi dữ liệu mất cân bằng.
 
 ## 7. Chạy Ứng dụng Demo Streamlit (Điểm thưởng)

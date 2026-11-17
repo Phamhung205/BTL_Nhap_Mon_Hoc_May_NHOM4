@@ -95,7 +95,7 @@ def build_baseline_model(preprocessor_A):
     train_X = pd.read_csv(PROCESSED_DIR / "X_train_A.csv")
     train_y = pd.read_csv(PROCESSED_DIR / "y_train.csv")["Churn"]
     model = DecisionTreeClassifier(random_state=42)
-    model.fit(preprocessor_A.transform(train_X), train_y)
+    model.fit(train_X, train_y)
     return model
 
 
@@ -256,7 +256,7 @@ def main():
                 "PaperlessBilling": selected_customer.get("PaperlessBilling", "No"),
                 "PaymentMethod": selected_customer.get("PaymentMethod", "Electronic check"),
                 "MonthlyCharges": float(selected_customer.get("MonthlyCharges", 79.85)),
-                "TotalCharges": float(selected_customer.get("TotalCharges", 0.0) if pd.notna(selected_customer.get("TotalCharges", 0.0)) else 0.0),
+                "TotalCharges": float(pd.to_numeric(selected_customer.get("TotalCharges", 0.0), errors="coerce") or 0.0),
             }
         else:
             # Thiết lập giá trị mặc định theo preset nếu người dùng chọn nhập tay

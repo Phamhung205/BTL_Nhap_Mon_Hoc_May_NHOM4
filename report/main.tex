@@ -52,13 +52,13 @@ Dữ liệu sử dụng trong đề tài là bộ dữ liệu thực tế \textb
 \begin{enumerate}
     \item \textbf{Cấu trúc thuộc tính và kiểu dữ liệu:} Bộ dữ liệu gồm 3 đặc trưng định lượng (\texttt{tenure}, \texttt{MonthlyCharges}, \texttt{TotalCharges}), 16 đặc trưng định tính phân loại (thông tin hợp đồng, phương thức thanh toán, các dịch vụ giá trị gia tăng), 1 cột mã định danh duy nhất (\texttt{customerID}) và 1 cột nhãn mục tiêu nhị phân (\texttt{Churn}).
     \item \textbf{Phát hiện giá trị bất thường và dữ liệu thiếu:} Cột \texttt{TotalCharges} ban đầu được pandas nhận diện là kiểu chuỗi (\texttt{object}) do có $11$ dòng chỉ chứa ký tự khoảng trắng (\texttt{" "}). Phân tích sâu cho thấy toàn bộ $11$ trường hợp này đều là khách hàng mới đăng ký với thời gian sử dụng \texttt{tenure = 0}, chưa phát sinh chu kỳ thanh toán nào. Nhóm đã thực hiện chuyển đổi kiểu số thực (\texttt{float64}), gán các giá trị này về \texttt{NaN} để điền khuyết bằng $0$ (thay vì loại bỏ mẫu hay gán trung vị tùy tiện). Cột \texttt{customerID} là mã định danh ngẫu nhiên không có ý nghĩa dự báo và có nguy cơ gây bùng nổ số chiều khi One-Hot Encoding nên được loại bỏ ngay từ đầu.
-    \item \textbf{Phân tích mất cân bằng dữ liệu (Imbalanced Data):} Trong tập dữ liệu, có $5.174$ khách hàng chọn ở lại (\texttt{No}, chiếm $73.42\%$) và $1.869$ khách hàng rời bỏ dịch vụ (\texttt{Yes}, chiếm $26.58\%$). Tỷ lệ chênh lệch xấp xỉ $3:1$ này khẳng định rằng \textbf{độ chính xác tổng thể (Accuracy) hoàn toàn không phải là độ đo phù hợp để đánh giá bài toán}. Nếu một mô hình ngây thơ luôn dự đoán khách hàng sẽ ở lại, nó vẫn đạt Accuracy $73.4\%$, nhưng giá trị thực tiễn bằng 0 vì bỏ sót $100\%$ khách hàng rời mạng. Do đó, các chỉ số \textbf{Recall} và \textbf{F1-score} của lớp \texttt{Churn = Yes} là tiêu chí đánh giá trọng tâm.
+    \item \textbf{Phân tích mất cân bằng dữ liệu (Imbalanced Data):} Trong tập dữ liệu, có $5.174$ khách hàng chọn ở lại (\texttt{No}, chiếm $73.46\%$) và $1.869$ khách hàng rời bỏ dịch vụ (\texttt{Yes}, chiếm $26.54\%$). Tỷ lệ chênh lệch xấp xỉ $3:1$ này khẳng định rằng \textbf{độ chính xác tổng thể (Accuracy) hoàn toàn không phải là độ đo phù hợp để đánh giá bài toán}. Nếu một mô hình ngây thơ luôn dự đoán khách hàng sẽ ở lại, nó vẫn đạt Accuracy $73.46\%$, nhưng giá trị thực tiễn bằng 0 vì bỏ sót $100\%$ khách hàng rời mạng. Do đó, các chỉ số \textbf{Recall} và \textbf{F1-score} của lớp \texttt{Churn = Yes} là tiêu chí đánh giá trọng tâm.
     \item \textbf{Tương quan giữa các đặc trưng với hành vi rời mạng:}
     \begin{itemize}
-        \item \textbf{Loại hợp đồng (\texttt{Contract}):} Khách hàng sử dụng hợp đồng từng tháng (\texttt{Month-to-month}) có tỷ lệ rời mạng lên tới $42.75\%$, cao vượt trội so với hợp đồng một năm ($11.1\%$) và hợp đồng hai năm ($2.9\%$).
-        \item \textbf{Dịch vụ Internet (\texttt{InternetService}):} Nhóm khách hàng sử dụng cáp quang (\texttt{Fiber optic}) có tỷ lệ rời bỏ rất cao ($42.09\%$) so với cáp đồng DSL ($18.69\%$) và nhóm không dùng Internet ($7.4\%$).
-        \item \textbf{Phương thức thanh toán (\texttt{PaymentMethod}):} Thanh toán bằng séc điện tử (\texttt{Electronic check}) có tỷ lệ rời mạng cao nhất ($45.74\%$), trong khi các phương thức trích nợ tự động qua ngân hàng hay thẻ tín dụng chỉ có tỷ lệ rời mạng khoảng $15\% - 17\%$.
-        \item \textbf{Dịch vụ bảo vệ và hỗ trợ:} Nhóm khách hàng thiếu các dịch vụ bảo vệ như \texttt{OnlineSecurity} và \texttt{TechSupport} có tỷ lệ rời mạng đều trên $41\%$, cao gấp gần 3 lần so với nhóm có đăng ký các dịch vụ này.
+        \item \textbf{Loại hợp đồng (\texttt{Contract}):} Khách hàng sử dụng hợp đồng từng tháng (\texttt{Month-to-month}) có tỷ lệ rời mạng lên tới $42.71\%$, cao vượt trội so với hợp đồng một năm ($11.27\%$) và hợp đồng hai năm ($2.83\%$).
+        \item \textbf{Dịch vụ Internet (\texttt{InternetService}):} Nhóm khách hàng sử dụng cáp quang (\texttt{Fiber optic}) có tỷ lệ rời bỏ rất cao ($41.89\%$) so với cáp đồng DSL ($18.96\%$) và nhóm không dùng Internet ($7.40\%$).
+        \item \textbf{Phương thức thanh toán (\texttt{PaymentMethod}):} Thanh toán bằng séc điện tử (\texttt{Electronic check}) có tỷ lệ rời mạng cao nhất ($45.29\%$), trong khi các phương thức trích nợ tự động qua ngân hàng hay thẻ tín dụng chỉ có tỷ lệ rời mạng khoảng $15.24\% - 16.71\%$.
+        \item \textbf{Dịch vụ bảo vệ và hỗ trợ:} Nhóm khách hàng thiếu các dịch vụ bảo vệ như \texttt{OnlineSecurity} ($41.77\%$) và \texttt{TechSupport} ($41.64\%$) có tỷ lệ rời mạng cao gấp gần 3 lần so với nhóm có đăng ký các dịch vụ này ($\approx 14.6\% - 15.2\%$).
         \item \textbf{Thời gian gắn bó (\texttt{tenure}) và cước phí (\texttt{MonthlyCharges}):} Khách hàng rời mạng tập trung mạnh ở nhóm mới gia nhập với trung vị thời gian gắn bó chỉ $10$ tháng (so với $38$ tháng của nhóm ở lại) và có mức cước hàng tháng trung vị cao hơn đáng kể ($79.95\$$ so với $64.40\$$).
     \end{itemize}
 \end{enumerate}
@@ -208,11 +208,11 @@ Bảng~\ref{tab:model-comparison} trình bày kết quả đánh giá đối sá
 \toprule
 Mô hình & Luồng & Tham số tối ưu & Accuracy & Precision & Recall & F1-score \\
 \midrule
-\textbf{Baseline (Mặc định)} & Luồng A & Default (depth=$\infty$, unweighted) & 0.7289 & 0.4896 & 0.5053 & 0.4974 \\
-\textbf{Decision Tree} & Luồng A & depth=5, leaf=75, balanced & 0.7488 & 0.5175 & \textbf{0.7914} & \textbf{0.6258} \\
-\textbf{Decision Tree} & Luồng B & depth=4, leaf=30, balanced & 0.7346 & 0.5000 & \textbf{0.7995} & 0.6152 \\
+\textbf{Baseline (Mặc định)} & Luồng A & gini, depth=None, leaf=1, unweighted & 0.7289 & 0.4896 & 0.5053 & 0.4974 \\
+\textbf{Decision Tree} & Luồng A & gini, depth=8, leaf=50, balanced & 0.7488 & 0.5175 & \textbf{0.7914} & \textbf{0.6258} \\
+\textbf{Decision Tree} & Luồng B & entropy, depth=7, leaf=50, balanced & 0.7346 & 0.5000 & \textbf{0.7995} & 0.6152 \\
 \textbf{K-NN}          & Luồng A & $k=41$, manhattan, uniform & 0.7864 & 0.5968 & 0.6016 & 0.5992 \\
-\textbf{K-NN}          & Luồng B & $k=51$, euclidean, uniform & \textbf{0.7906} & \textbf{0.6238} & 0.5321 & 0.5743 \\
+\textbf{K-NN}          & Luồng B & $k=51$, euclidean, uniform, scaler & \textbf{0.7906} & \textbf{0.6238} & 0.5321 & 0.5743 \\
 \bottomrule
 \end{tabular}
 \caption{Bảng so sánh kết quả thực nghiệm giữa Baseline và 4 mô hình trên tập Test chung.}
@@ -260,7 +260,7 @@ So với mô hình Baseline (Decision Tree chưa tinh chỉnh có F1-score chỉ
     \item Chỉ số \textbf{Recall tăng từ $50.53\%$ lên $79.14\%$} (tăng tuyệt đối $+28.61\%$). Điều này đồng nghĩa với việc mô hình cải tiến giúp doanh nghiệp bắt thêm được gần $30\%$ lượng khách hàng sắp rời mạng mà mô hình ban đầu đã bỏ sót.
     \item Chỉ số \textbf{F1-score tăng từ $0.4974$ lên $0.6258$} (tăng tuyệt đối $+12.84\%$).
 \end{itemize}
-Kết quả này minh chứng rõ nét rằng việc kiểm soát độ sâu cắt tỉa cành (\texttt{max\_depth = 5}) đã chặn đứng hoàn toàn hiện tượng quá khớp ở cây quyết định, trong khi cơ chế bù trừ trọng số nghịch đảo đóng vai trò quyết định trong việc giải quyết bài toán mất cân bằng lớp.
+Kết quả này minh chứng rõ nét rằng việc kiểm soát độ sâu cắt tỉa cành (\texttt{max\_depth = 8}, \texttt{min\_samples\_leaf = 50}) đã chặn đứng hoàn toàn hiện tượng quá khớp ở cây quyết định, trong khi cơ chế bù trừ trọng số nghịch đảo đóng vai trò quyết định trong việc giải quyết bài toán mất cân bằng lớp.
 
 \subsection{So sánh thuật toán Decision Tree và K-NN}
 \begin{enumerate}
@@ -288,7 +288,7 @@ Nhóm đã tiến hành mổ xẻ chi tiết $1.409$ dự đoán trên tập Tes
 \begin{enumerate}
     \item \textbf{Nhóm False Negatives (FN - Bỏ sót Churn, 78 khách hàng, chiếm 5.5\%):}
     \begin{itemize}
-        \item Khảo sát định lượng: Nhóm khách hàng này có thời gian sử dụng dịch vụ trung bình lên tới $31.7$ tháng (cao hơn hẳn mức $12.4$ tháng của nhóm Churn thông thường TP). Đặc biệt, có tới $52.6\%$ khách hàng trong nhóm này ký hợp đồng dài hạn (1 năm hoặc 2 năm) và có cước phí tháng ở mức trung bình ($61.2\$$).
+        \item Khảo sát định lượng: Nhóm khách hàng này có thời gian sử dụng dịch vụ trung bình lên tới $31.7$ tháng (cao hơn hẳn mức $12.4$ tháng của nhóm Churn thông thường TP). Đặc biệt, có tới $52.6\%$ ($41/78$ ca) khách hàng trong nhóm này ký hợp đồng dài hạn (32 ca hợp đồng 1 năm, 9 ca hợp đồng 2 năm) và có cước phí tháng trung bình ở mức vừa phải ($68.2\$$, thấp hơn mức $74.0\$$ của nhóm TP).
         \item Nguyên nhân kỹ thuật \& giả thuyết nghiệp vụ: Mô hình học được quy luật thống kê vững chắc rằng ``khách hàng thâm niên lâu và có hợp đồng dài hạn thì xác suất Churn rất thấp''. Do đó, mô hình tự tin dự đoán nhóm này ở lại. Tuy nhiên, họ vẫn rời mạng trên thực tế. Nhóm nghiên cứu nhận định rằng nguyên nhân rời mạng của nhóm này bắt nguồn từ các biến cố ngoại cảnh không nằm trong bộ dữ liệu, ví dụ: khách hàng thay đổi nơi cư trú ra ngoài vùng phủ sóng, gặp sự cố gián đoạn mạng nghiêm trọng kéo dài, hoặc các vấn đề cá nhân phát sinh đột ngột.
     \end{itemize}
     \item \textbf{Nhóm False Positives (FP - Nhầm thành Churn, 276 khách hàng, chiếm 19.6\%):}
@@ -312,7 +312,7 @@ Qua quá trình triển khai nghiêm túc, đề tài đã hoàn thành xuất s
     \item Xây dựng hoàn chỉnh một pipeline học máy có thể tái tạo 100\%, tuân thủ nghiêm ngặt nguyên tắc ngăn ngừa rò rỉ dữ liệu.
     \item Thiết kế và đối sánh thực nghiệm thành công hai luồng tiền xử lý (Luồng A 45 đặc trưng vs Luồng B 17 đặc trưng) và hai thuật toán (Decision Tree vs K-NN) trên cùng một tập Test chuẩn.
     \item Xác định mô hình tối ưu đề xuất là \textbf{Decision Tree (Luồng A)}, đạt F1-score $= 0.6258$ và Recall $= 0.7914$, vượt trội so với mô hình Baseline ban đầu (F1 $= 0.4974$, Recall $= 0.5053$).
-    \item Triển khai thành công ứng dụng giao diện web demo tương tác bằng \textbf{Streamlit} (\texttt{app.py}), cho phép người dùng nhập trực quan 19 thuộc tính khách hàng, tính toán xác suất rủi ro và đưa ra khuyến nghị hành động CSKH tự động.
+    \item Triển khai thành công ứng dụng giao diện web demo tương tác bằng \textbf{Streamlit} (\texttt{app.py}), cho phép chọn đủ 5 cấu hình mô hình (gồm cả Baseline và 4 mô hình tối ưu), hỗ trợ nạp trực tiếp hồ sơ khách hàng thực tế từ tập dữ liệu gốc ($7.043$ thuê bao) hoặc nhập tay 19 thuộc tính, hiển thị đồng thời xác suất rời mạng/ở lại, bảng kết quả chạy thuật toán, ghi chú đánh giá mô hình và khuyến nghị hành động CSKH tự động.
 \end{enumerate}
 
 \subsection{Hướng cải tiến và phát triển}
