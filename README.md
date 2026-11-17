@@ -45,10 +45,36 @@ stratify = y
 
 Không tự chia lại tập Test ở từng mô hình. Decision Tree và K-NN phải được đánh giá trên cùng tập Test do Mạnh tạo.
 
-## 4. Cài đặt
+## 4. Cài đặt môi trường
 
+Mở PowerShell hoặc Terminal trong VS Code, sau đó chuyển đến thư mục dự án:
+```bash
+cd "E:\Năm 3\Kỳ 1\Nhập Môn Học Máy\BTL\BTL_Nhap_Mon_Hoc_May_NHOM4"
+```
+
+Tạo môi trường ảo (chỉ cần tạo một lần):
+```bash
+python -m venv .venv
+```
+
+Kích hoạt môi trường ảo trong Windows PowerShell:
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+Nếu dùng Command Prompt (cmd):
+```cmd
+.\.venv\Scripts\activate.bat
+```
+
+Cài các thư viện cần thiết khi môi trường ảo đã được kích hoạt:
 ```bash
 pip install -r requirements.txt
+```
+
+Khi hoàn tất, thoát môi trường ảo bằng:
+```bash
+deactivate
 ```
 
 ## 5. Trình tự làm việc
@@ -108,15 +134,33 @@ notebooks/tong_hop_ket_qua.ipynb
 
 ## 7. Chạy Ứng dụng Demo Streamlit (Điểm thưởng)
 
-Chạy ứng dụng giao diện web demo trực quan từ thư mục gốc dự án:
+Mở terminal tại thư mục gốc dự án, sau đó kích hoạt môi trường ảo:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+Khởi chạy giao diện demo:
 
 ```bash
-streamlit run app.py
+python -m streamlit run app.py
+```
+
+Streamlit sẽ in địa chỉ ứng dụng trong terminal. Mở trình duyệt tại:
+
+```text
+http://localhost:8501
+```
+
+Để tắt ứng dụng, quay lại terminal đang chạy Streamlit và nhấn `Ctrl+C`. Sau đó thoát môi trường ảo:
+
+```bash
+deactivate
 ```
 
 Ứng dụng hỗ trợ:
 - Nhập trực quan 19 trường thông tin khách hàng, có sẵn các mẫu hồ sơ nhanh (Preset).
-- Chọn 1 trong 4 mô hình để suy luận và tính xác suất rời mạng (Churn Probability).
+- Chọn mô hình để suy luận và tính xác suất rời mạng (Churn Probability).
 - Đưa ra các khuyến nghị hành động thiết thực cho bộ phận CSKH.
 - Xem phân tích lỗi (Error Analysis) và tra cứu 30 ca lỗi tiêu biểu trên tập Test.
 
